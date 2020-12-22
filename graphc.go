@@ -1,5 +1,7 @@
 package ds
 
+import "fmt"
+
 // graph representation as map[int][int]int, for map[from]map[to]weight
 type graph map[int]map[int]int
 
@@ -63,6 +65,18 @@ func (g graph) EdgesCost() (int, int) {
 	}
 
 	return e, cost
+}
+
+//Edges returns a set containing all the edges of the graph
+func (g graph) Edges() Set {
+	set := NewSet()
+	for v, edges := range g {
+		for w, c := range edges {
+			set.Add(Edge{v, w, c})
+		}
+	}
+
+	return set
 }
 
 // ShortestPath implements dijkstra to return the shortest path from s to goal and its length
@@ -138,9 +152,12 @@ func (g graph) MST() (Graph, int) {
 	A := make(map[int]struct{ v, c int })
 	T := NewGraph()
 	total := 0
-	for v := range g {
-		VX.Insert(v, 1<<32-1)
+
+	for edge := range g.Edges() {
+		e := edge.(Edge)
+		VX.Insert(e.To(), e.Weight())
 	}
+	fmt.Println(VX.Peek())
 
 	s := 37
 	X.Add(s)
@@ -148,18 +165,17 @@ func (g graph) MST() (Graph, int) {
 	A[s] = struct{ v, c int }{s, 0}
 
 	for {
-		if T.Len() == g.Len() {
+		if VX.IsEmpty() {
 			return T, total
 		}
 		v := VX.Pop().(int)
-		T.AddVertex(v)
 		for w, cost := range g[v] {
 			X.Add(w)
-			T.AddVertex(w)
 			val, ok := VX.Value(w)
 			if ok && cost < val {
 				A[w] = struct{ v, c int }{v, cost}
 				total += cost
+				T.AddVertex(w)
 				T.PutEdge(v, w, cost)
 				T.PutEdge(w, v, cost)
 				VX.Update(w, cost)
@@ -167,7 +183,6 @@ func (g graph) MST() (Graph, int) {
 			}
 		}
 	}
-	return T, 0
 }
 
 func (g graph) checkCosts(w int, X Set, VX *Heap, T Graph, A map[int]struct{ v, c int }, total *int) {
