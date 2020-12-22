@@ -78,7 +78,7 @@ func (g graph) ShortestPath(from, to int) (int, []int) {
 
 	X.Add(from)
 	VX.Update(from, 0)
-	A[to] = 0
+	A[from] = 0
 	B[to] = 1
 
 	for {
@@ -100,7 +100,7 @@ func (g graph) ShortestPath(from, to int) (int, []int) {
 				B[w] = v
 				VX.Update(w, score)
 				g.checkWedges(w, X, VX, A, B)
-			}
+			} 
 		}
 	}
 }
@@ -133,5 +133,38 @@ func (g graph) path(B map[int]int, s, goal int) []int {
 }
 
 func (g graph) MST() Graph {
-	return NewGraph()
+	
+	X := NewSet()
+	VX := NewHeap()
+	A := make(map[int]int)
+	T := NewGraph()
+
+	for v := range g {
+		VX.Insert(v,  1<<32 - 1)
+	}
+
+	s:= 1
+
+	X.Add(s)
+	VX.Update(s, 0)
+	A[s] = 0
+
+	for {
+		if VX.IsEmpty() {
+			//return -1, nil
+		}
+		v := VX.Pop().(int)
+
+		for w, Lvw := range g[v] {
+			X.Add(w)
+			score := A[v] + Lvw
+			val, ok := VX.Value(w)
+			if ok && score < val {
+				A[w] = score
+				VX.Update(w, score)
+				g.checkWedges(w, X, VX, A, nil)
+			}
+		}
+	}
+	return T
 }
