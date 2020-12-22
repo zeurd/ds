@@ -10,8 +10,17 @@ import (
 func TestReadGraph(t *testing.T) {
 	G := ds.ReadGraph("testdata/graph")
 	expectedLen := 200
-	if expectedLen != len(G) {
-		t.Errorf("expected len: %d, actual len: %d", expectedLen, len(G))
+	expectedCost := 18834238
+	expectedEdges := 3734
+	if expectedLen != G.Len() {
+		t.Errorf("expected len: %d, actual len: %d", expectedLen, G.Len())
+	}
+	e, c := G.EdgesCost()
+	if expectedCost != c {
+		t.Errorf("expected cost: %d, actual cost: %d", expectedCost, c)
+	}
+	if expectedEdges != e {
+		t.Errorf("expected number of edges: %d, actual: %d", expectedEdges, e)
 	}
 }
 func TestShortestPath(t *testing.T) {
@@ -22,7 +31,6 @@ func TestShortestPath(t *testing.T) {
 		d, _:= G.ShortestPath(1, e)
 		s += fmt.Sprintf("%d,", d)
 	}
-
 	if expectedLen != s {
 		t.Errorf("expected len: %v\nactual len: %v\n", expectedLen, s)
 	}

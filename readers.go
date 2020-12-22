@@ -11,7 +11,7 @@ import (
 // ReadGraph reads a txt file containing Graph data in format:
 // [starting vertex] [ending vertex, edge length]...
 func ReadGraph(file string) Graph {
-	A := make(Graph)
+	A := NewGraph()
 
 	f, err := os.Open(file)
 	if err != nil {
@@ -24,6 +24,7 @@ func ReadGraph(file string) Graph {
 		}
 	}()
 	s := bufio.NewScanner(f)
+	count := 0
 	for s.Scan() {
 		tk := s.Text()
 		row := strings.Split(tk, "\t")
@@ -50,11 +51,14 @@ func ReadGraph(file string) Graph {
 			if err != nil {
 				panic(edgestr)
 			}
-			e := Edge{startingNode, toNode, weight}
+			count++
+			A.AddVertex(startingNode)
+			A.AddVertex(toNode)
+			A.PutEdge(startingNode, toNode, weight)
 
-			A.AddNodesAndEdge(e)
 		}
 	}
+	fmt.Printf("read count: %d\n", count)
 	err = s.Err()
 	if err != nil {
 		fmt.Println(err)
