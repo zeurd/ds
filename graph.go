@@ -11,21 +11,17 @@ type Graph interface {
 	//RemoveUndirectedEdge(from, to int)
 	ShortestPath(from, to int) (int, []int)
 	EdgesCost() (int, int)
-	MST() Graph
+	MST() (Graph, int)
 }
-
-
 
 // NewGraph returns a default graph: directed and with int vertices
 func NewGraph() Graph {
-	return make(graph) 
+	return make(graph)
 }
 
 // NewUndirectedGraph
 
-
 // NewTypedGraph(type, directed)
-
 
 // Options struct?
 // undirected bool
@@ -33,3 +29,4 @@ func NewGraph() Graph {
 // weighted bool
 // negative wieghts
 // preprocessed for A*
+// parallel ?

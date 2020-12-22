@@ -62,3 +62,42 @@ func ReadGraph(file string) Graph {
 	}
 	return A
 }
+
+// ReadVE reads a txt file containing graph data in the form:
+// first line: m n
+// following lines: v w cost
+func ReadVE(file string) Graph {
+	f, err := os.Open(file)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+	g := NewGraph()
+	s := bufio.NewScanner(f)
+	i := 0
+	for s.Scan() {
+		if i == 0 {
+			i++
+			continue
+		}
+		tk := s.Text()
+		job := strings.Split(tk, " ")
+		v, _ := strconv.Atoi(job[0])
+		w, _ := strconv.Atoi(job[1])
+		c, _ := strconv.Atoi(job[2])
+		g.AddVertex(v)
+		g.AddVertex(w)
+		g.PutEdge(v,w,c)
+	}
+	err = s.Err()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return g
+}
+
