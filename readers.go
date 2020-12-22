@@ -24,7 +24,6 @@ func ReadGraph(file string) Graph {
 		}
 	}()
 	s := bufio.NewScanner(f)
-	count := 0
 	for s.Scan() {
 		tk := s.Text()
 		row := strings.Split(tk, "\t")
@@ -51,14 +50,12 @@ func ReadGraph(file string) Graph {
 			if err != nil {
 				panic(edgestr)
 			}
-			count++
 			A.AddVertex(startingNode)
 			A.AddVertex(toNode)
 			A.PutEdge(startingNode, toNode, weight)
 
 		}
 	}
-	fmt.Printf("read count: %d\n", count)
 	err = s.Err()
 	if err != nil {
 		fmt.Println(err)

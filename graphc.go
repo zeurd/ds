@@ -73,7 +73,7 @@ func (g graph) ShortestPath(from, to int) (int, []int) {
 	B := make(map[int]int)
 
 	for v := range g {
-		VX.Insert(v, 1000000)
+		VX.Insert(v,  1<<32 - 1)
 	}
 
 	X.Add(from)
@@ -94,7 +94,8 @@ func (g graph) ShortestPath(from, to int) (int, []int) {
 		for w, Lvw := range g[v] {
 			X.Add(w)
 			score := A[v] + Lvw
-			if score < VX.Value(w) {
+			val, ok := VX.Value(w)
+			if ok && score < val {
 				A[w] = score
 				B[w] = v
 				VX.Update(w, score)
@@ -129,4 +130,8 @@ func (g graph) path(B map[int]int, s, goal int) []int {
 		}
 		w = B[w]
 	}
+}
+
+func (g graph) MST() Graph {
+	return NewGraph()
 }

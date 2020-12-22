@@ -268,7 +268,7 @@ func (h *Heap) Update(x interface{}, value int) {
 	// if h.Contains(x) && h.Value(x) < value {
 	// 	panic(fmt.Sprintf("update: %v\n", x))
 	// }
-	pos := h.Pos(x)
+	pos := h.pos(x)
 	if pos != -1 {
 		h.delete(pos)
 		h.Insert(x, value)
@@ -282,19 +282,19 @@ func (h *Heap) Slice() []interface{} {
 }
 
 // Pos returns the position of x in the heap or -1 if x is not present
-func (h *Heap) Pos(x interface{}) int {
+func (h *Heap) pos(x interface{}) int {
 	if v, ok := h.p[x]; ok {
 		return v
 	}
 	return -1
 }
 
-//Value returns the value (min priority) or -1 if is not present
-func (h *Heap) Value(x interface{}) int {
+//Value returns the value (min priority) and if the element is present
+func (h *Heap) Value(x interface{}) (int, bool) {
 	if v, ok := h.v[x]; ok {
-		return v
+		return v, ok
 	}
-	return -1
+	return 0, false
 }
 
 // Levels returns the number of Levels in the tree

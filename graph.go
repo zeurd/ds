@@ -11,6 +11,7 @@ type Graph interface {
 	//RemoveUndirectedEdge(from, to int)
 	ShortestPath(from, to int) (int, []int)
 	EdgesCost() (int, int)
+	MST() Graph
 }
 
 
