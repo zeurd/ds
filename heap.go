@@ -12,6 +12,7 @@ type Heap interface {
 	Value(interface{}) (int, bool)
 	String() string
 	Subtree(int) [][]interface{}
+	IsValid()
 	//Slice() []interface{}
 }
 

@@ -19,6 +19,7 @@ func intHeap() ds.Heap {
 	h.Push(6)
 	h.Push(7)
 	h.Push(8)
+	h.IsValid()
 	return h
 }
 func TestHeapInsert(t *testing.T) {
@@ -36,7 +37,8 @@ func TestHeapUpdate(t *testing.T) {
 	h.Update(6, 0)
 	h.Update(5, 1)
 	h.Update(51, 8)
-	expected := "[[6] [1 2] [4 5 50 52] [3 7 8 51]]"
+	h.IsValid()
+	expected := "[6 1 2 4 5 50 52 3 7 8 51]"
 	actual := h.String()
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
@@ -49,7 +51,8 @@ func TestHeapDelete(t *testing.T) {
 	h.Delete(5)
 	h.Delete(8)
 	h.Delete(50)
-	expected := "[[1] [3 7] [6 4 51 52]]"
+	h.IsValid()
+	expected := "[1 3 7 6 4 51 52]"
 	actual := h.String()
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
@@ -65,10 +68,11 @@ func TestHeapPop(t *testing.T) {
 	}
 	for i := 0; i <= n; i++ {
 		h.Push(s.Pop())
+		h.IsValid()
 	}
 	for i := 0; i <= n; i++ {
-		x := h.Pop()
-		fmt.Println(x)
+		h.Pop()
+		h.IsValid()
 	}
 	expected := "[]"
 	actual := h.String()

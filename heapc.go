@@ -118,7 +118,7 @@ func (h *heap) valid(i int) bool {
 	return i < h.Len() && i >= 0
 }
 
-func (h *heap) check() {
+func (h *heap) IsValid() {
 	if h.IsEmpty() {
 		return
 	}
@@ -129,8 +129,8 @@ func (h *heap) check() {
 	//checks that min is top element
 	min := h.k[h.e[0].value][0]
 	for i, e := range h.e {
-		if h.k[e.value][0] < min {
-			s := fmt.Sprintf("At %d: %v with value: %d\nAt %d: %v with value: %d\n%v\n", 0, h.e[0], h.e[0].key, i, h.e[i], h.e[i].key, h)
+		if e.key < min {
+			s := fmt.Sprintf("Position 0 key: %d. Postion %d key: %d\n", min, i, e.key)
 			panic(s)
 		}
 	}
@@ -165,7 +165,6 @@ func (h *heap) Insert(x interface{}, v int) {
 	h.p[e] = h.Len() - 1
 	//2. bubble-up: if this violates the parent/child ruled: swap with parent, if this violates again, swap again
 	h.bubbleUp(h.Len() - 1)
-	//h.check()
 }
 
 func (h *heap) bubbleUp(i int) {
@@ -181,7 +180,7 @@ func (h *heap) bubbleUp(i int) {
 
 //Peek returns the top element without removing it
 func (h *heap) Peek() interface{} {
-	return h.e[0]
+	return h.e[0].value
 }
 
 //Pop returns the top element and removes it
@@ -203,22 +202,21 @@ func (h *heap) Pop() interface{} {
 	// 3. bubble-down: swap new root => swap with smaller child, if tree still not ok, repeat the swap with smaller child (until there' no child)
 	h.bubbleDown(0)
 	h.deleteInMaps(element)
-	h.check()
-	return element
+	return element.value
 }
 
-func (h *heap) delete(i int) interface{} {
+func (h *heap) delete(i int) {
 	if h.IsEmpty() {
-		return nil
+		return 
 	}
 	end := h.Len() - 1
 	if i == end {
-		fmt.Println("DEL LAST")
-		return h.deleteLastElement()
+		h.deleteLastElement()
+		return
 	}
 	if i == end-1 && h.haveSameParent(i, end) {
-		fmt.Println("DEL B LAST")
-		return h.deleteBeforeLastElement()
+		h.deleteBeforeLastElement()
+		return
 	}
 	// in this case, we change subtree, so the last element that replaces the deleted one
 	// might be smaller than its parent => need to try both bubble up and bubble down
@@ -229,27 +227,24 @@ func (h *heap) delete(i int) interface{} {
 	h.bubbleUp(i)
 	h.bubbleDown(i)
 	h.deleteInMaps(element)
-	h.check()
-	return element
+	return
 }
 
 func (h *heap) haveSameParent(i, j int) bool {
 	return h.parent(i) == h.parent(j)
 }
 
-func (h *heap) deleteBeforeLastElement() interface{} {
+func (h *heap) deleteBeforeLastElement()  {
 	last := h.Len() - 1
 	h.swap(last, last-1)
-	return h.deleteLastElement()
+	h.deleteLastElement()
 }
 
-func (h *heap) deleteLastElement() interface{} {
+func (h *heap) deleteLastElement() {
 	last := h.Len() - 1
 	e := h.e[last]
 	h.e = h.e[:last]
 	h.deleteInMaps(e)
-	h.check()
-	return e
 }
 
 // TOFIX : logic to delete in keys
@@ -272,7 +267,7 @@ func (h *heap) bubbleDown(i int) {
 	if !h.valid(c) {
 		return
 	}
-	if h.e[c].key > h.e[i].key {
+	if h.e[c].key < h.e[i].key {
 		h.swap(c, i)
 		h.bubbleDown(c)
 	}
@@ -313,7 +308,6 @@ func (h *heap) Update(x interface{}, key int) {
 		return
 	}
 	k := keys[0]
-	fmt.Println(k)
 	h.UpdateKeyValue(x, k, key)
 }
 
@@ -321,11 +315,9 @@ func (h *heap) UpdateKeyValue(x interface{}, oldKey, newKey int) {
 	e := element{oldKey, x}
 	pos := h.pos(e)
 	if pos != -1 {
-		fmt.Println("UPDSE")
 		h.delete(pos)
 		h.Insert(x, newKey)
 	}
-	//h.check()
 }
 
 //Slice returns the heap as slice
