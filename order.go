@@ -26,13 +26,7 @@ func (o *Order) Add(x int) {
 		*o = []int{x}
 		return
 	}
-	pos := 1
-	if x < (*o)[0] {
-		pos = 0
-	} else {
-		pos = o.Search(x)
-	}
-	if pos <= 0 {
+	if pos := o.Search(x); pos <= 0 {
 		*o = append(*o, 0)
 		copy((*o)[pos+1:], (*o)[pos:])
 		(*o)[pos] = x
@@ -41,12 +35,18 @@ func (o *Order) Add(x int) {
 
 // Search returns the position of the given element or -(position where it should be)
 func (o Order) Search(x int) int {
+	if x < o[0] {
+		return 0
+	}
+	if x > o[len(o)-1] {
+		return -(len(o))
+	}
 	return o.binarySearch(0, len(o), x)
 }
 
 func (o Order) binarySearch(l, r, x int) int {
 	mid := l + (r-1)/2
-	if r >= l {
+	if r > l {
 		if o[mid] == x {
 			return mid
 		}

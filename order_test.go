@@ -28,6 +28,16 @@ func TestOrderSearch(t *testing.T) {
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
 	}
+	actual = o.Search(0)
+	expected = 0
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
+	actual = o.Search(6)
+	expected = -4
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
 }
 
 func TestOrderAdd(t *testing.T) {
