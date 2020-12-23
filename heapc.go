@@ -8,7 +8,7 @@ import (
 //heap is a min-heap
 type heap struct {
 	e  []element               // elements in the heap
-	k  map[interface{}][]int   // keys to define priority (min); value is slice because there can be duplicate elements with different keys
+	ko map[interface{}]Order   // map[element.value] to Order containing the element.key: identical element.value can have different element.key
 	p  map[element]int         // positions of elements in the heap; keys are element because one pair, key:value can only have one position
 	d  map[element]int         // duplicate count for element that have both key and value indentical (all those identical values have same position in the heap)
 	pk func(a interface{}) int // pk returns priority key for the given value a
@@ -27,7 +27,7 @@ func (h *heap) String() string {
 func newHeap() *heap {
 	return &heap{
 		e:  make([]element, 0),
-		k:  make(map[interface{}][]int),
+		ko: make(map[interface{}]Order),
 		p:  make(map[element]int),
 		d:  make(map[element]int),
 		pk: func(a interface{}) int { return a.(int) },
@@ -38,7 +38,7 @@ func newHeap() *heap {
 func newHeapWithEval(f func(a interface{}) int) *heap {
 	return &heap{
 		e:  make([]element, 0),
-		k:  make(map[interface{}][]int),
+		ko:  make(map[interface{}]Order),
 		p:  make(map[element]int),
 		d:  make(map[element]int),
 		pk: f,
@@ -207,7 +207,7 @@ func (h *heap) Pop() interface{} {
 
 func (h *heap) delete(i int) {
 	if h.IsEmpty() {
-		return 
+		return
 	}
 	end := h.Len() - 1
 	if i == end {
@@ -234,7 +234,7 @@ func (h *heap) haveSameParent(i, j int) bool {
 	return h.parent(i) == h.parent(j)
 }
 
-func (h *heap) deleteBeforeLastElement()  {
+func (h *heap) deleteBeforeLastElement() {
 	last := h.Len() - 1
 	h.swap(last, last-1)
 	h.deleteLastElement()

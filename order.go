@@ -71,7 +71,6 @@ func (o Order) Search(x int) int {
 
 func (o Order) binarySearch(l, r, x int) int {
 	mid := (r-l)/2 + l
-	//fmt.Printf("l: %d. r: %d. mid: %d\tfrom: %v\n", l, r, mid, f)
 	if r >= l {
 		if o[mid] == x {
 			return mid
@@ -81,7 +80,6 @@ func (o Order) binarySearch(l, r, x int) int {
 		}
 		return o.binarySearch(mid+1, r, x)
 	}
-	//need to do -1 for case if x would be first element
 	return -mid-1
 }
 
