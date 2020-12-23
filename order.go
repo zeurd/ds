@@ -20,6 +20,21 @@ func NewOrderFromSlice(n []int) Order {
 	return o
 }
 
+//IsValid returns true if Order has all elements sorted in increasing order
+func (o Order) IsValid() bool {
+	if len(o) == 0 {
+		return true
+	}
+	n := o[0]
+	for i := 1; i < len(o); i++ {
+		if o[i] < n {
+			return false
+		}
+		n = o[i]
+	}
+	return true
+}
+
 //Add adds a new int to Order
 func (o *Order) Add(x int) {
 	if len(*o) == 0 {
@@ -27,7 +42,8 @@ func (o *Order) Add(x int) {
 		return
 	}
 	if pos := o.Search(x); pos <= 0 {
-		*o = append(*o, 0)
+		pos *= -1
+		*o = append(*o, x)
 		copy((*o)[pos+1:], (*o)[pos:])
 		(*o)[pos] = x
 	}
@@ -45,8 +61,9 @@ func (o Order) Search(x int) int {
 }
 
 func (o Order) binarySearch(l, r, x int) int {
-	mid := l + (r-1)/2
-	if r > l {
+	mid := (r-l)/2 + l
+	//fmt.Printf("l: %d. r: %d. mid: %d\n", l, r, mid)
+	if r >= l {
 		if o[mid] == x {
 			return mid
 		}

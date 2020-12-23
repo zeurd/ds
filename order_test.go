@@ -1,30 +1,35 @@
 package ds_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/zeurd/ds"
 )
 
 func TestOrderFromSlice(t *testing.T) {
+	n := unorderedInts(30)
+	o := ds.NewOrderFromSlice(n)
+	if !o.IsValid() {
+		t.Errorf("Order is not valid: %v\n", o)
+	}
+}
+
+func unorderedInts(max int) []int {
 	s := ds.NewSet()
 	n := make([]int, 0)
-	for i := 0; i < 30; i++ {
+	for i := 0; i < max; i++ {
 		s.Add(i)
 	}
 	for !s.IsEmpty() {
 		n = append(n, s.Pop().(int))
 	}
-	
-	o := ds.NewOrderFromSlice(n)
-	fmt.Println(o)
+	return n
 }
 
 func TestOrderSearch(t *testing.T) {
-	o := ds.NewOrderFromSlice([]int{1,2,4,5})
-	actual := o.Search(3)
-	expected := -2
+	o := ds.NewOrderFromSlice([]int{1, 2, 4, 15, 28})
+	actual := o.Search(20)
+	expected := -4
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
 	}
@@ -33,26 +38,25 @@ func TestOrderSearch(t *testing.T) {
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
 	}
-	actual = o.Search(6)
-	expected = -4
+	actual = o.Search(60)
+	expected = -5
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
 	}
 }
 
 func TestOrderAdd(t *testing.T) {
+	l := 30000
+	n := unorderedInts(l)
 	o := ds.NewOrder()
-	o.Add(1)
-	actual := o[0]
-	expected := 1
-	if expected != actual {
-		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	for _, x := range n {
+		o.Add(x)
 	}
-	o.Add(2)
-	actual = o[1]
-	expected = 2
-	if expected != actual {
-		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	if !o.IsValid() {
+		t.Errorf("Order is not valid: %v\n", o)
 	}
-
+	if len(o) != l {
+		t.Errorf("Expected length: %d. Actual: %d\n", l, len(o))
+	}
 }
+
