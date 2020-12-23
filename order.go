@@ -49,20 +49,28 @@ func (o *Order) Add(x int) {
 	}
 }
 
+// Delete deletes x if it is in the order
+func (o *Order) Delete(x int) {
+	if len(*o) == 0 {
+		return
+	}
+	if pos := o.Search(x); pos > 0 {
+		pos *= -1
+		*o = append(*o, x)
+		copy((*o)[pos+1:], (*o)[pos:])
+		(*o)[pos] = x
+	}
+}
+
+
 // Search returns the position of the given element or -(position where it should be)
 func (o Order) Search(x int) int {
-	if x < o[0] {
-		return 0
-	}
-	if x > o[len(o)-1] {
-		return -(len(o))
-	}
-	return o.binarySearch(0, len(o), x)
+	return o.binarySearch(0, len(o)-1, x)
 }
 
 func (o Order) binarySearch(l, r, x int) int {
 	mid := (r-l)/2 + l
-	//fmt.Printf("l: %d. r: %d. mid: %d\n", l, r, mid)
+	//fmt.Printf("l: %d. r: %d. mid: %d\tfrom: %v\n", l, r, mid, f)
 	if r >= l {
 		if o[mid] == x {
 			return mid
