@@ -17,6 +17,11 @@ func (s Set) Size() int {
 	return len(s)
 }
 
+//IsEmpty foo
+func (s Set) IsEmpty() bool {
+	return len(s) == 0
+}
+
 //Add adds an element to the set and returns true if at least one element has been added
 func (s Set) Add(e ...interface{}) bool {
 	done := false
