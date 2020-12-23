@@ -41,8 +41,8 @@ func (o *Order) Add(x int) {
 		*o = []int{x}
 		return
 	}
-	if pos := o.Search(x); pos <= 0 {
-		pos *= -1
+	if pos := o.Search(x); pos < 0 {
+		pos = (pos*-1)-1
 		*o = append(*o, x)
 		copy((*o)[pos+1:], (*o)[pos:])
 		(*o)[pos] = x
@@ -63,7 +63,9 @@ func (o *Order) Delete(x int) {
 }
 
 
-// Search returns the position of the given element or -(position where it should be)
+// Search returns the position of the given element
+// if the element is not present it returns a negative number:
+// -(potential position)-1
 func (o Order) Search(x int) int {
 	return o.binarySearch(0, len(o)-1, x)
 }
@@ -80,8 +82,8 @@ func (o Order) binarySearch(l, r, x int) int {
 		}
 		return o.binarySearch(mid+1, r, x)
 	}
-	//special case, x is not present but should be first element, this will return 1
-	return -mid
+	//need to do -1 for case if x would be first element
+	return -mid-1
 }
 
 func (o Order) quicksort() {

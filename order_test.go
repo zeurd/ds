@@ -26,25 +26,42 @@ func unorderedInts(max int) []int {
 	return n
 }
 
-func TestOrderSearch(t *testing.T) {
+func TestOrderAbsentSearch(t *testing.T) {
 	o := ds.NewOrderFromSlice([]int{1, 2, 4, 15, 28})
 	actual := o.Search(20)
-	expected := -4
+	expected := -5
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
 	}
 	actual = o.Search(0)
-	expected = 0
+	expected = -1
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
 	}
 	actual = o.Search(60)
-	expected = -5
+	expected = -6
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
 	}
 }
-
+func TestOrderSearch(t *testing.T) {
+	o := ds.NewOrderFromSlice([]int{1, 2, 4, 15, 28})
+	actual := o.Search(1)
+	expected := 0
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
+	actual = o.Search(15)
+	expected = 3
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
+	actual = o.Search(28)
+	expected = 4
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
+}
 func TestOrderAdd(t *testing.T) {
 	l := 30000
 	n := unorderedInts(l)
