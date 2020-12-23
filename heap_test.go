@@ -23,7 +23,7 @@ func intHeap() ds.Heap {
 }
 func TestHeapInsert(t *testing.T) {
 	h := intHeap()
-	expected := "[[1] [2 50] [3 4 51 52] [5 6 7 8]]"
+	expected := "[1 2 50 3 4 51 52 5 6 7 8]"
 	actual := h.String()
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
@@ -67,7 +67,8 @@ func TestHeapPop(t *testing.T) {
 		h.Push(s.Pop())
 	}
 	for i := 0; i <= n; i++ {
-		h.Pop()
+		x := h.Pop()
+		fmt.Println(x)
 	}
 	expected := "[]"
 	actual := h.String()

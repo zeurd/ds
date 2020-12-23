@@ -5,48 +5,64 @@ import (
 	"math"
 )
 
-
 //heap is a min-heap
 type heap struct {
-	e    []interface{}           // elements in the heap
-	v    map[interface{}]int     // values to define priority (min)
-	p    map[interface{}]int     // positions of elements in the heap
-	eval func(a interface{}) int // eval gives the min value of the element
+	e  []element               // elements in the heap
+	k  map[interface{}][]int   // keys to define priority (min); value is slice because there can be duplicate elements with different keys
+	p  map[element]int         // positions of elements in the heap; keys are element because one pair, key:value can only have one position
+	d  map[element]int         // duplicate count for element that have both key and value indentical (all those identical values have same position in the heap)
+	pk func(a interface{}) int // pk returns priority key for the given value a
+}
+
+type element struct {
+	key   int
+	value interface{}
 }
 
 func (h *heap) String() string {
-	return fmt.Sprintf("%v", h.Subtree(0))
+	return fmt.Sprintf("%v", h.filterValues(h.e))
 }
 
 // NewHeap returns a heap without a specific eval function
 func newHeap() *heap {
 	return &heap{
-		e:    make([]interface{}, 0),
-		v:    make(map[interface{}]int),
-		p:    make(map[interface{}]int),
-		eval: func(a interface{}) int { return a.(int) },
+		e:  make([]element, 0),
+		k:  make(map[interface{}][]int),
+		p:  make(map[element]int),
+		d:  make(map[element]int),
+		pk: func(a interface{}) int { return a.(int) },
 	}
 }
 
 // NewHeapWithEval foo
 func newHeapWithEval(f func(a interface{}) int) *heap {
 	return &heap{
-		e:    make([]interface{}, 0),
-		v:    make(map[interface{}]int),
-		p:    make(map[interface{}]int),
-		eval: f,
+		e:  make([]element, 0),
+		k:  make(map[interface{}][]int),
+		p:  make(map[element]int),
+		d:  make(map[element]int),
+		pk: f,
 	}
 }
 
-// Len gives the length of the heap
+// Len gives the length of the heap (this does not count the perfect duplicates with same key values)
 func (h *heap) Len() int {
 	return len(h.e)
+}
+
+// Count counts element in the heap, duplicated included
+func (h *heap) Count() int {
+	c := 0
+	for _, v := range h.d {
+		c += v
+	}
+	return c
 }
 
 // Push adds an element to the heap and maintains its invariant
 // It works only if the eval function has been implemented
 func (h *heap) Push(e interface{}) {
-	h.Insert(e, h.eval(e))
+	h.Insert(e, h.pk(e))
 }
 
 func (h *heap) swap(i, j int) {
@@ -92,7 +108,7 @@ func (h *heap) smallerChild(i int) int {
 	if r == -1 {
 		return l //no right child
 	}
-	if h.ValueAt(l) < h.ValueAt(r) {
+	if h.e[l].key < h.e[r].key {
 		return l
 	}
 	return r
@@ -106,17 +122,19 @@ func (h *heap) check() {
 	if h.IsEmpty() {
 		return
 	}
-	if h.Len() != len(h.v) || h.Len() != len(h.p) {
-		s := fmt.Sprintf("heap length: %d, Values: %d, Postions: %d\n%v\npos: %v\nval: %v", h.Len(), len(h.v), len(h.p), h, h.p, h.v)
+	if h.Len() != len(h.d) || h.Len() != len(h.p) {
+		s := fmt.Sprintf("heap length: %d, duplicates count: %d, postions: %d\n", h.Len(), len(h.d), len(h.p))
 		panic(s)
 	}
-	min := h.v[h.e[0]]
+	//checks that min is top element
+	min := h.k[h.e[0].value][0]
 	for i, e := range h.e {
-		if h.v[e] < min {
-			s := fmt.Sprintf("At %d: %v with value: %d\nAt %d: %v with value: %d\n%v\n", 0, h.e[0], h.ValueAt(0), i, h.e[i], h.ValueAt(i), h)
+		if h.k[e.value][0] < min {
+			s := fmt.Sprintf("At %d: %v with value: %d\nAt %d: %v with value: %d\n%v\n", 0, h.e[0], h.e[0].key, i, h.e[i], h.e[i].key, h)
 			panic(s)
 		}
 	}
+	//checks all parent-child relation
 	for i := range h.e {
 		h.checkParentRelation(i)
 	}
@@ -124,21 +142,30 @@ func (h *heap) check() {
 
 func (h *heap) checkParentRelation(i int) {
 	p := h.parent(i)
-	if p != -1 && h.ValueAt(p) > h.ValueAt(i) {
-		s := fmt.Sprintf("%v with value %d is parent of %v with value %d", h.e[p], h.ValueAt(p), h.e[i], h.ValueAt(i))
+	if p != -1 && h.e[p].key > h.e[i].key {
+		s := fmt.Sprintf("%v is parent of %v", h.e[p], h.e[i])
 		panic(s)
 	}
 }
 
 //Insert adds the element to the heap using the provided value to define priority
 func (h *heap) Insert(x interface{}, v int) {
-	// 1. strick j at end of last level
-	h.e = append(h.e, x)
-	h.v[x] = v
-	h.p[x] = h.Len() - 1
+	// 1. stick x at end of last level
+	e := element{v, x}
+	h.e = append(h.e, e)
+	h.k[x] = append(h.k[x], v)
+	//if an element with the same key:value exists, it's already at right position in the heap
+	//just need to increase its duplicate count
+	_, ok := h.d[e]
+	if ok {
+		h.d[e]++
+		return
+	}
+	h.d[e] = 1
+	h.p[e] = h.Len() - 1
 	//2. bubble-up: if this violates the parent/child ruled: swap with parent, if this violates again, swap again
 	h.bubbleUp(h.Len() - 1)
-	h.check()
+	//h.check()
 }
 
 func (h *heap) bubbleUp(i int) {
@@ -146,7 +173,7 @@ func (h *heap) bubbleUp(i int) {
 	if !h.valid(p) {
 		return
 	}
-	if h.v[h.e[p]] > h.v[h.e[i]] {
+	if h.e[p].key > h.e[i].key {
 		h.swap(p, i)
 		h.bubbleUp(p)
 	}
@@ -159,19 +186,14 @@ func (h *heap) Peek() interface{} {
 
 //Pop returns the top element and removes it
 func (h *heap) Pop() interface{} {
-	return h.deletePop(0)
-}
-
-// deletePop is used when last leaf if subtree of i is the last leaf in global tree
-func (h *heap) deletePop(i int) interface{} {
 	last := h.Len() - 1
 	if last == -1 {
 		return nil
 	}
 	// 0. Min is at the root
-	element := h.e[i]
+	element := h.e[0]
 	// 2. move last node to be new root
-	h.swap(i, last)
+	h.swap(0, last)
 	// 1. remove the root that has just been moved to last
 	h.e = h.e[:last]
 	if h.Len() == 1 {
@@ -179,7 +201,7 @@ func (h *heap) deletePop(i int) interface{} {
 		return element
 	}
 	// 3. bubble-down: swap new root => swap with smaller child, if tree still not ok, repeat the swap with smaller child (until there' no child)
-	h.bubbleDown(i)
+	h.bubbleDown(0)
 	h.deleteInMaps(element)
 	h.check()
 	return element
@@ -191,9 +213,11 @@ func (h *heap) delete(i int) interface{} {
 	}
 	end := h.Len() - 1
 	if i == end {
+		fmt.Println("DEL LAST")
 		return h.deleteLastElement()
 	}
 	if i == end-1 && h.haveSameParent(i, end) {
+		fmt.Println("DEL B LAST")
 		return h.deleteBeforeLastElement()
 	}
 	// in this case, we change subtree, so the last element that replaces the deleted one
@@ -228,16 +252,27 @@ func (h *heap) deleteLastElement() interface{} {
 	return e
 }
 
-func (h *heap) deleteInMaps(x interface{}) {
-	delete(h.v, x)
-	delete(h.p, x)
+// TOFIX : logic to delete in keys
+func (h *heap) deleteInMaps(e element) {
+	if _, ok := h.k[e.value]; !ok {
+		//element was not present
+		return
+	}
+	// decrease the duplicate count
+	h.d[e]--
+	if h.d[e] == 0 {
+		delete(h.d, e)
+		delete(h.p, e)
+		//need to delete only for k TODO: create new structure for k
+		delete(h.k, e.value)
+	}
 }
 func (h *heap) bubbleDown(i int) {
 	c := h.smallerChild(i)
 	if !h.valid(c) {
 		return
 	}
-	if h.v[h.e[c]] < h.v[h.e[i]] {
+	if h.e[c].key > h.e[i].key {
 		h.swap(c, i)
 		h.bubbleDown(c)
 	}
@@ -250,49 +285,66 @@ func (h *heap) IsEmpty() bool {
 
 //Contains returns true if heap contains given element
 func (h *heap) Contains(x interface{}) bool {
-	_, ok := h.v[x]
+	_, ok := h.k[x]
 	return ok
 }
 
-//Delete deletes the given element if it's present in the heap
+// Delete deletes the given element (with lowest priority if it has duplicates)
 func (h *heap) Delete(x interface{}) {
 	if !h.Contains(x) {
 		return
 	}
-	p := h.p[x]
+	k := h.k[x][0]
+	e := element{k, x}
+	p := h.p[e]
+	h.delete(p)
+}
+
+func (h *heap) DeleteKeyValue(k int, x interface{}) {
+	e := element{k, x}
+	p := h.p[e]
 	h.delete(p)
 }
 
 // Update updates the priority value of the given element
-func (h *heap) Update(x interface{}, value int) {
-	// if h.Contains(x) && h.Value(x) < value {
-	// 	panic(fmt.Sprintf("update: %v\n", x))
-	// }
-	pos := h.pos(x)
-	if pos != -1 {
-		h.delete(pos)
-		h.Insert(x, value)
+func (h *heap) Update(x interface{}, key int) {
+	keys, ok := h.k[x]
+	if !ok {
+		return
 	}
-	h.check()
+	k := keys[0]
+	fmt.Println(k)
+	h.UpdateKeyValue(x, k, key)
+}
+
+func (h *heap) UpdateKeyValue(x interface{}, oldKey, newKey int) {
+	e := element{oldKey, x}
+	pos := h.pos(e)
+	if pos != -1 {
+		fmt.Println("UPDSE")
+		h.delete(pos)
+		h.Insert(x, newKey)
+	}
+	//h.check()
 }
 
 //Slice returns the heap as slice
-func (h *heap) Slice() []interface{} {
-	return h.e
-}
+// func (h *heap) Slice() []interface{} {
+// 	return h.e
+// }
 
 // Pos returns the position of x in the heap or -1 if x is not present
-func (h *heap) pos(x interface{}) int {
-	if v, ok := h.p[x]; ok {
+func (h *heap) pos(e element) int {
+	if v, ok := h.p[e]; ok {
 		return v
 	}
 	return -1
 }
 
-//Value returns the value (min priority) and if the element is present
+//Value returns the value and if the element is present (returns the lowest value if duplicates)
 func (h *heap) Value(x interface{}) (int, bool) {
-	if v, ok := h.v[x]; ok {
-		return v, ok
+	if v, ok := h.k[x]; ok {
+		return v[0], ok
 	}
 	return 0, false
 }
@@ -300,12 +352,6 @@ func (h *heap) Value(x interface{}) (int, bool) {
 // Levels returns the number of Levels in the tree
 func (h *heap) Levels() int {
 	return h.level(h.Len() - 1)
-}
-
-//ValueAt return the value of the
-func (h *heap) ValueAt(i int) int {
-	x := h.e[i]
-	return h.v[x]
 }
 
 // GetLastElementPosInSubTree returns the postion in heap of the last element with root at position i
@@ -365,7 +411,7 @@ func (h *heap) subtreeLevel(i, l int) ([]interface{}, int, int) {
 	iLevel, _, len := h.levelDetailsAtPos(i)
 	diffLevel := l - iLevel
 	if diffLevel == 0 {
-		return h.e[i : i+1], i, i
+		return h.filterValues(h.e[i : i+1]), i, i
 	}
 	if diffLevel < 0 {
 		return nil, -1, -1
@@ -385,5 +431,13 @@ func (h *heap) subtreeLevel(i, l int) ([]interface{}, int, int) {
 	if subtreeEnd > h.Len() {
 		subtreeEnd = h.Len()
 	}
-	return h.e[subtreeStart:subtreeEnd], subtreeStart, subtreeEnd - 1
+	return h.filterValues(h.e[subtreeStart:subtreeEnd]), subtreeStart, subtreeEnd - 1
+}
+
+func (h *heap) filterValues(elements []element) []interface{} {
+	v := make([]interface{}, len(elements))
+	for i, e := range elements {
+		v[i] = e.value
+	}
+	return v
 }
