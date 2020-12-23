@@ -15,7 +15,7 @@ func NewOrder() Order {
 // NewOrderFromSlice returns an order with the element in the slice
 func NewOrderFromSlice(n []int) Order {
 	var o Order
-	o = n
+	copy(o, n)
 	o.quicksort()
 	return o
 }
@@ -54,11 +54,10 @@ func (o *Order) Delete(x int) {
 	if len(*o) == 0 {
 		return
 	}
-	if pos := o.Search(x); pos > 0 {
-		pos *= -1
-		*o = append(*o, x)
-		copy((*o)[pos+1:], (*o)[pos:])
-		(*o)[pos] = x
+	if pos := o.Search(x); pos >= 0 {
+		end := len(*o) - 1
+		o.swap(pos, end)
+		*o = (*o)[:end]
 	}
 }
 
