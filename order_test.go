@@ -22,15 +22,27 @@ func TestOrderFromSlice(t *testing.T) {
 }
 
 func TestOrderSearch(t *testing.T) {
-	o := ds.NewOrder()
-	o.Add(1)
-	o.Add(2)
-	o.Add(4)
-	o.Add(5)
-	fmt.Println(o)
-	actual := o.Search(5)
-	expected := 3
+	o := ds.NewOrderFromSlice([]int{1,2,4,5})
+	actual := o.Search(3)
+	expected := -2
 	if expected != actual {
 		t.Errorf("expected: %v; actual: %v\n", expected, actual)
 	}
+}
+
+func TestOrderAdd(t *testing.T) {
+	o := ds.NewOrder()
+	o.Add(1)
+	actual := o[0]
+	expected := 1
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
+	o.Add(2)
+	actual = o[1]
+	expected = 2
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
+
 }

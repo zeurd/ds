@@ -5,52 +5,62 @@ import (
 )
 
 // Order is an slice of sorted int (increasing order)
-type Order struct {
-	o []int
-}
+type Order []int
 
 // NewOrder returns a new instance of Order
-func NewOrder() *Order {
-	return &Order{make([]int, 0)}
+func NewOrder() Order {
+	return make([]int, 0)
 }
 
 // NewOrderFromSlice returns an order with the element in the slice
-func NewOrderFromSlice(n []int) *Order {
-	o := &Order{n}
+func NewOrderFromSlice(n []int) Order {
+	var o Order
+	o = n
 	o.quicksort()
 	return o
 }
 
 //Add adds a new int to Order
 func (o *Order) Add(x int) {
-	o.o = append(o.o, x)
+	if len(*o) == 0 {
+		*o = []int{x}
+		return
+	}
+	pos := 1
+	if x < (*o)[0] {
+		pos = 0
+	} else {
+		pos = o.Search(x)
+	}
+	if pos <= 0 {
+		*o = append(*o, 0)
+		copy((*o)[pos+1:], (*o)[pos:])
+		(*o)[pos] = x
+	}
 }
 
 // Search returns the position of the given element or -(position where it should be)
-func (o *Order) Search(x int) int {
-	return o.binarySearch(0, len(o.o), x)
+func (o Order) Search(x int) int {
+	return o.binarySearch(0, len(o), x)
 }
 
-func (o *Order) binarySearch(l, r, x int) int {
+func (o Order) binarySearch(l, r, x int) int {
 	mid := l + (r-1)/2
 	if r >= l {
-		if o.o[mid] == x {
+		if o[mid] == x {
 			return mid
 		}
-		if o.o[mid] > x {
+		if o[mid] > x {
 			return o.binarySearch(l, mid-1, x)
 		}
 		return o.binarySearch(mid+1, r, x)
 	}
-	//special case, x is not present but should be first element
-	if -mid == 1 {
-		return -1
-	}
-	return 1
+	//special case, x is not present but should be first element, this will return 1
+	return -mid
 }
 
-func (o *Order) quicksort() {
-	o.qs(0, len(o.o))
+func (o Order) quicksort() {
+	o.qs(0, len(o))
 }
 func (o *Order) qs(l, r int) {
 	if r-l <= 1 {
@@ -70,13 +80,13 @@ func (o *Order) qs(l, r int) {
 	//No combining part!
 }
 
-func (o *Order) partition(l, r int) int {
+func (o Order) partition(l, r int) int {
 	//we swapped pivot with l
-	pivot := o.o[l]
+	pivot := o[l]
 	i := l + 1
 	for j := l + 1; j < r; j++ {
 		//can add extra condition: && we've already seen element bigger than the pivot
-		if o.o[j] < pivot {
+		if o[j] < pivot {
 			//if new element is less than the pivot,
 			//swap with ith element, the left-most element less that's bigger than the pivot
 			o.swap(i, j)
@@ -88,6 +98,6 @@ func (o *Order) partition(l, r int) int {
 	return i
 }
 
-func (o *Order) swap(i, j int) {
-	o.o[i], o.o[j] = o.o[j], o.o[i]
+func (o Order) swap(i, j int) {
+	o[i], o[j] = o[j], o[i]
 }
