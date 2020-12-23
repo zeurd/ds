@@ -119,7 +119,7 @@ func (g graph) ShortestPath(from, to int) (int, []int) {
 	}
 }
 
-func (g graph) checkWedges(w int, X Set, VX *Heap, A, B map[int]int) {
+func (g graph) checkWedges(w int, X Set, VX Heap, A, B map[int]int) {
 	for x, Lwx := range g[w] {
 		if !X.Contains(x) {
 			newScore := A[w] + Lwx
@@ -185,7 +185,7 @@ func (g graph) MST() (Graph, int) {
 	}
 }
 
-func (g graph) checkCosts(w int, X Set, VX *Heap, T Graph, A map[int]struct{ v, c int }, total *int) {
+func (g graph) checkCosts(w int, X Set, VX Heap, T Graph, A map[int]struct{ v, c int }, total *int) {
 	for x, newCost := range g[w] {
 		if !X.Contains(x) {
 			vc, ok := A[x]
