@@ -71,12 +71,13 @@ func (o *Order) Add(x int) {
 		*o = []int{x}
 		return
 	}
-	if pos := o.Search(x); pos < 0 {
+	pos := o.Search(x)
+	if pos < 0 {
 		pos = (pos * -1) - 1
-		*o = append(*o, x)
-		copy((*o)[pos+1:], (*o)[pos:])
-		(*o)[pos] = x
 	}
+	*o = append(*o, x)
+	copy((*o)[pos+1:], (*o)[pos:])
+	(*o)[pos] = x
 }
 
 // Delete deletes x if it is in the order

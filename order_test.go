@@ -203,12 +203,12 @@ func TestOrderSearchDuplicates(t *testing.T) {
 	}
 }
 
-func TestOrderAddDuplicates(t *testing.T) {
+func TestOrderAddDeleteDuplicates(t *testing.T) {
 	o := ds.NewOrder()
-	l := 10
+	l := 1000
 	n := make([]int, l)
 	for i := 0; i < l; i++ {
-		n[i] = i % 3
+		n[i] = i % 333
 	}
 	for _, x := range n {
 		o.Add(x)
@@ -219,6 +219,13 @@ func TestOrderAddDuplicates(t *testing.T) {
 	if !o.IsValid() {
 		t.Errorf("Order not valid: %v\n", o)
 	}
+	for i, x := range n {
+		o.Delete(x)
+		if !o.IsValid() {
+			t.Errorf("Order not valid after deleting %d: %v\n", x, o)
+		}
+		if len(*o) != l-(i+1) {
+			t.Errorf("Expected length: %d. Actual: %d\n", l-(i+1), len(*o))
+		}
+	}
 }
-
-
