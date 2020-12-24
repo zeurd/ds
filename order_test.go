@@ -28,8 +28,8 @@ func TestOrderFromSlice(t *testing.T) {
 func TestOrderDuplicates(t *testing.T) {
 	l := 1000
 	n := make([]int, l)
-	for i :=0; i < l; i++{
-		n[i] = i%10
+	for i := 0; i < l; i++ {
+		n[i] = i % 10
 	}
 	o := ds.NewOrderFromSlice(n)
 	if len(*o) != l {
@@ -169,3 +169,38 @@ func TestInMap(t *testing.T) {
 		t.Errorf("Expected max: %d. Actual: %d\n", 5, o.Min())
 	}
 }
+
+func TestOrderSearchDuplicatesAbsent(t *testing.T) {
+	o := ds.NewOrderFromSlice([]int{0, 2, 4, 0, 2, 4, 0, 2, 4})
+	actual := o.Search(-1)
+	expected := -1
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
+	actual = o.Search(3)
+	expected = -7
+	if expected != actual {
+		t.Errorf("search 3 -> expected: %v; actual: %v\n", expected, actual)
+	}
+}
+
+func TestOrderSearchDuplicates(t *testing.T) {
+	o := ds.NewOrderFromSlice([]int{0, 2, 4, 0, 2, 4, 0, 2, 4})
+	expected := 4
+	actual := o.Get(o.Search(expected))
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
+	expected = 0
+	actual = o.Get(o.Search(expected))
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
+	expected = 2
+	actual = o.Get(o.Search(expected))
+	if expected != actual {
+		t.Errorf("expected: %v; actual: %v\n", expected, actual)
+	}
+}
+
+
