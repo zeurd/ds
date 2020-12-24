@@ -87,12 +87,3 @@ func TestAddMultiple(t *testing.T) {
 	}
 
 }
-
-func TestPrint(t *testing.T) {
-	s := ds.NewSet()
-	s.Add(1, 2, 3)
-	expected := "{1, 2, 3}"
-	if s.String() != expected {
-		t.Errorf("not the expected string: %v vs %v", expected, s.String())
-	}
-}

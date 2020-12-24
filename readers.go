@@ -66,7 +66,7 @@ func ReadGraph(file string) Graph {
 // ReadVE reads a txt file containing graph data in the form:
 // first line: m n
 // following lines: v w cost
-func ReadVE(file string) (Graph, int, int, int) {
+func ReadVE(file string, undirected bool) (Graph, int, int, int) {
 	f, err := os.Open(file)
 	if err != nil {
 		fmt.Println(err)
@@ -97,6 +97,9 @@ func ReadVE(file string) (Graph, int, int, int) {
 		g.AddVertex(v)
 		g.AddVertex(w)
 		g.PutEdge(v,w,c)
+		if undirected {
+			g.PutEdge(w,v,c)
+		}
 	}
 	err = s.Err()
 	if err != nil {

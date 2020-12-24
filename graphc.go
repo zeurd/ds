@@ -75,7 +75,6 @@ func (g graph) Edges() Set {
 			set.Add(Edge{v, w, c})
 		}
 	}
-
 	return set
 }
 
@@ -102,13 +101,13 @@ func (g graph) ShortestPath(from, to int) (int, []int) {
 		v := VX.Pop().(int)
 
 		if v == to {
-			return A[v], nil //g.path(B, s, goal)
+			return A[v], g.path(B, from, to)
 		}
 
 		for w, Lvw := range g[v] {
 			X.Add(w)
 			score := A[v] + Lvw
-			val, ok := VX.Value(w)
+			val, ok := VX.Key(w)
 			if ok && score < val {
 				A[w] = score
 				B[w] = v
@@ -149,40 +148,54 @@ func (g graph) path(B map[int]int, s, goal int) []int {
 func (g graph) MST() (Graph, int) {
 	X := NewSet()
 	VX := NewHeap()
-	A := make(map[int]struct{ v, c int })
+	A := make(map[int]Edge)
 	T := NewGraph()
 	total := 0
 
-	for edge := range g.Edges() {
-		e := edge.(Edge)
-		VX.Insert(e.To(), e.Weight())
-	}
-	fmt.Println(VX.Peek())
-
-	s := 37
+	s := 6
 	X.Add(s)
-	VX.Update(s, 0)
-	A[s] = struct{ v, c int }{s, 0}
 
-	for {
-		if VX.IsEmpty() {
-			return T, total
+	//preprocess
+	for v, e := range g {
+		if v == s {
+			continue
 		}
-		v := VX.Pop().(int)
-		for w, cost := range g[v] {
-			X.Add(w)
-			val, ok := VX.Value(w)
-			if ok && cost < val {
-				A[w] = struct{ v, c int }{v, cost}
-				total += cost
-				T.AddVertex(w)
-				T.PutEdge(v, w, cost)
-				T.PutEdge(w, v, cost)
-				VX.Update(w, cost)
-				g.checkCosts(w, X, VX, T, A, &total)
+		// there is an edge (s,v)
+		if cost, ok := e[s]; ok {
+			VX.Insert(s, cost)
+			A[v] = Edge{s, v, cost}
+			//fmt.Println(A[v])
+		} else {
+			// there is no crossing edge
+			VX.Insert(v, 1<<32-1)
+		}
+	}
+	fmt.Println(VX)
+	fmt.Println(X)
+
+	//main
+	for !VX.IsEmpty() {
+		w := VX.Pop().(int)
+		X.Add(w)
+		winner := A[w]
+		T.AddVertex(winner.From())
+		T.AddVertex(winner.To())
+		T.PutEdge(winner.From(), winner.To(), winner.Weight())
+		total += winner.Weight()
+
+		for y, cost := range g[w] {
+			if X.Contains(y) {
+				continue
+			}
+			oldKey, ok := VX.Key(y)
+			if !ok || ok && oldKey > cost {
+				VX.Update(y, cost)
+				A[y] = Edge{w, y, cost}
 			}
 		}
 	}
+	fmt.Println(A[s])
+	return T, total
 }
 
 func (g graph) checkCosts(w int, X Set, VX Heap, T Graph, A map[int]struct{ v, c int }, total *int) {

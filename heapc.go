@@ -207,7 +207,7 @@ func (h *heap) Pop() interface{} {
 	h.e = h.e[:last]
 	if h.Len() == 1 {
 		h.deleteInMaps(element)
-		return element
+		return element.value
 	}
 	// 3. bubble-down: swap new root => swap with smaller child, if tree still not ok, repeat the swap with smaller child (until there' no child)
 	h.bubbleDown(0)
@@ -335,7 +335,7 @@ func (h *heap) pos(e element) int {
 }
 
 //Value returns the value and if the element is present (returns the lowest value if duplicates)
-func (h *heap) Value(x interface{}) (int, bool) {
+func (h *heap) Key(x interface{}) (int, bool) {
 	if v, ok := h.ko[x]; ok {
 		return v.Min(), ok
 	}

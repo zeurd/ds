@@ -9,7 +9,7 @@ type Heap interface {
 	Update(interface{}, int)
 	Delete(interface{})
 	IsEmpty() bool
-	Value(interface{}) (int, bool)
+	Key(interface{}) (int, bool)
 	String() string
 	Subtree(int) [][]interface{}
 	IsValid()
