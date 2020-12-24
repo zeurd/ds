@@ -1,13 +1,8 @@
 package ds
 
-import (
-	"math/rand"
-)
-
-
 /* TODO:
- Allow duplicates
- */
+Allow duplicates
+*/
 
 // Order is an slice of sorted int (increasing order)
 type Order []int
@@ -19,10 +14,10 @@ func NewOrder() *Order {
 }
 
 // NewOrderFromInts foo
-func NewOrderFromInts(n ...int) *Order{
+func NewOrderFromInts(n ...int) *Order {
 	o := make(Order, len(n))
 	copy(o, n)
-	o.quicksort()
+	o.sort()
 	return &o
 }
 
@@ -30,7 +25,7 @@ func NewOrderFromInts(n ...int) *Order{
 func NewOrderFromSlice(n []int) *Order {
 	o := make(Order, len(n))
 	copy(o, n)
-	o.quicksort()
+	o.sort()
 	return &o
 }
 
@@ -120,43 +115,31 @@ func (o *Order) binarySearch(l, r, x int) int {
 	return -mid - 1
 }
 
-func (o *Order) quicksort() {
-	o.qs(0, len(*o))
+func (o *Order) sort() {
+	o.quick3(0, len(*o)-1)
 }
-func (o *Order) qs(l, r int) {
-	if r-l <= 1 {
+
+func (o *Order) quick3(lo, hi int) {
+	if hi <= lo {
 		return
 	}
-	//chose pivot element
-	p := rand.Intn(r-l) + l
-	//swap pivot with 1st element
-	o.swap(p, l)
-
-	//partition around pivot
-	split := o.partition(l, r)
-	//recursively sort 1st part
-	o.qs(l, split-1)
-	//recursively sort 2ndrt
-	o.qs(split, r)
-	//No combining part!
-}
-
-func (o *Order) partition(l, r int) int {
-	//we swapped pivot with l
-	pivot := (*o)[l]
-	i := l + 1
-	for j := l + 1; j < r; j++ {
-		//can add extra condition: && we've already seen element bigger than the pivot
-		if (*o)[j] < pivot {
-			//if new element is less than the pivot,
-			//swap with ith element, the left-most element less that's bigger than the pivot
-			o.swap(i, j)
+	lt, i, gt := lo, lo+1, hi
+	p := (*o)[lo]
+	for i <= gt {
+		cmp := (*o)[i]
+		if cmp < p {
+			o.swap(lt, i)
+			lt++
 			i++
-		} //if new element is bigger than the pivot, nothing to do
+		} else if cmp > 0 {
+			o.swap(i, gt)
+			gt--
+		} else {
+			i++
+		}
 	}
-	//swap the pivot in its correst position
-	o.swap(l, i-1)
-	return i
+	o.quick3(lo, lt-1)
+	o.quick3(gt+1, hi)
 }
 
 func (o *Order) swap(i, j int) {
