@@ -203,4 +203,22 @@ func TestOrderSearchDuplicates(t *testing.T) {
 	}
 }
 
+func TestOrderAddDuplicates(t *testing.T) {
+	o := ds.NewOrder()
+	l := 10
+	n := make([]int, l)
+	for i := 0; i < l; i++ {
+		n[i] = i % 3
+	}
+	for _, x := range n {
+		o.Add(x)
+	}
+	if len(*o) != l {
+		t.Errorf("Expected length: %d. Actual: %d\n", l, len(*o))
+	}
+	if !o.IsValid() {
+		t.Errorf("Order not valid: %v\n", o)
+	}
+}
+
 

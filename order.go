@@ -1,9 +1,5 @@
 package ds
 
-/* TODO:
-Allow duplicates
-*/
-
 // Order is an slice of sorted int (increasing order)
 type Order []int
 
@@ -88,7 +84,6 @@ func (o *Order) Delete(x int) {
 	if len(*o) == 0 {
 		return
 	}
-	// return append(slice[:s], slice[s+1:]...)
 	if pos := (*o).Search(x); pos >= 0 {
 		*o = append((*o)[:pos], (*o)[pos+1:]...)
 	}
