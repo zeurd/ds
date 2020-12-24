@@ -131,7 +131,7 @@ func (o *Order) quick3(lo, hi int) {
 			o.swap(lt, i)
 			lt++
 			i++
-		} else if cmp > 0 {
+		} else if cmp > p {
 			o.swap(i, gt)
 			gt--
 		} else {

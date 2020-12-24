@@ -7,7 +7,7 @@ import (
 )
 
 func TestOrderFromSlice(t *testing.T) {
-	l := 10
+	l := 10000
 	n := unorderedInts(l)
 	o := ds.NewOrderFromSlice(n)
 	if len(*o) != l {
@@ -22,6 +22,21 @@ func TestOrderFromSlice(t *testing.T) {
 	}
 	if !olit.IsValid() {
 		t.Errorf("Order (literal) not valid: %v\n", olit)
+	}
+}
+
+func TestOrderDuplicates(t *testing.T) {
+	l := 1000
+	n := make([]int, l)
+	for i :=0; i < l; i++{
+		n[i] = i%10
+	}
+	o := ds.NewOrderFromSlice(n)
+	if len(*o) != l {
+		t.Errorf("Expected (literal) length: %d. Actual: %d\n", l, len(*o))
+	}
+	if !o.IsValid() {
+		t.Errorf("Order (literal) not valid: %v\n", o)
 	}
 }
 
