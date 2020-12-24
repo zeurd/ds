@@ -101,7 +101,7 @@ func TestHeapSubtree(t *testing.T) {
 }
 
 func TestHeapEdge(t *testing.T) {
-	g := ds.ReadVE("testdata/ve")
+	g, _, _, _ := ds.ReadVE("testdata/ve")
 	VX := ds.NewHeap()
 	for edge := range g.Edges() {
 		e := edge.(ds.Edge)

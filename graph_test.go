@@ -36,36 +36,33 @@ func TestShortestPath(t *testing.T) {
 	}
 }
 
-// func TestReadVE(t *testing.T) {
-// 	G := ds.ReadVE("testdata/ve")
-// 	expectedLen := 20
-// 	expectedCost := -4635
-// 	expectedEdges := 10
-// 	edges, cost := G.EdgesCost()
-// 	len := G.Len()
-// 	if len != expectedLen {
-// 		t.Errorf("expectedLen: %d ; actual len: %d\n", expectedLen, len)
-// 	}
-// 	if edges != expectedEdges {
-// 		t.Errorf("expectedEdges: %d ; actual edgest: %d\n", expectedEdges, edges)
-// 	}
-// 	if cost != expectedCost {
-// 		t.Errorf("expectedCost: %d ; actual cost: %d\n", expectedCost, cost)
-// 	}
-// }
-// func TestMST(t *testing.T) {
-// 	G := ds.ReadVE("testdata/e")
-// 	expectedCost := -10519
-// 	expectedEdges := 1
-// 	mst, cost := G.MST()
-// 	if cost != expectedCost {
-// 		t.Errorf("expectedCost: %d ; actual cost: %d\n", expectedCost, cost)
-// 	}
-// 	edges, cost2 := mst.EdgesCost()
-// 	if edges != expectedEdges {
-// 		t.Errorf("expectedEdges: %d ; actual edgest: %d\n", expectedEdges, edges)
-// 	}
-// 	if cost != expectedCost {
-// 		t.Errorf("expectedCost: %d ; actual cost2: %d\n", expectedCost, cost2)
-// 	}
-// }
+func TestReadVE(t *testing.T) {
+	G, m, n, c := ds.ReadVE("testdata/ve_test")
+	edges, cost := G.EdgesCost()
+	len := G.Len()
+	if len != m {
+		t.Errorf("expected m: %d ; actual len: %d\n", m, len)
+	}
+	if edges != n {
+		t.Errorf("expected n: %d ; actual edgest: %d\n", n, edges)
+	}
+	if cost != c {
+		t.Errorf("expected c: %d ; actual cost: %d\n", c, cost)
+	}
+}
+func TestMST(t *testing.T) {
+	G, _, _, _ := ds.ReadVE("testdata/ve_2_10_-12829")
+	expectedCost := -10519
+	expectedEdges := 1
+	mst, cost := G.MST()
+	if cost != expectedCost {
+		t.Errorf("expectedCost: %d ; actual cost: %d\n", expectedCost, cost)
+	}
+	edges, cost2 := mst.EdgesCost()
+	if edges != expectedEdges {
+		t.Errorf("expectedEdges: %d ; actual edgest: %d\n", expectedEdges, edges)
+	}
+	if cost != expectedCost {
+		t.Errorf("expectedCost: %d ; actual cost2: %d\n", expectedCost, cost2)
+	}
+}
