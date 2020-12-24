@@ -7,10 +7,21 @@ import (
 )
 
 func TestOrderFromSlice(t *testing.T) {
-	n := unorderedInts(30)
+	l := 10
+	n := unorderedInts(l)
 	o := ds.NewOrderFromSlice(n)
+	if len(*o) != l {
+		t.Errorf("Expected length: %d. Actual: %d\n", l, len(*o))
+	}
 	if !o.IsValid() {
 		t.Errorf("Order is not valid: %v\n", o)
+	}
+	olit := ds.NewOrderFromSlice([]int{3,2,1})
+	if len(*olit) != 3 {
+		t.Errorf("Expected (literal) length: %d. Actual: %d\n", 3, len(*olit))
+	}
+	if !olit.IsValid() {
+		t.Errorf("Order (literal) not valid: %v\n", olit)
 	}
 }
 
@@ -22,6 +33,9 @@ func unorderedInts(max int) []int {
 	}
 	for !s.IsEmpty() {
 		n = append(n, s.Pop().(int))
+	}
+	if len(n) != max {
+		panic(n)
 	}
 	return n
 }
@@ -72,8 +86,8 @@ func TestOrderAdd(t *testing.T) {
 	if !o.IsValid() {
 		t.Errorf("Order is not valid: %v\n", o)
 	}
-	if len(o) != l {
-		t.Errorf("Expected length: %d. Actual: %d\n", l, len(o))
+	if len(*o) != l {
+		t.Errorf("Expected length: %d. Actual: %d\n", l, len(*o))
 	}
 }
 
@@ -81,14 +95,13 @@ func TestOrderDelete(t *testing.T) {
 	l := 3000
 	n := unorderedInts(l)
 	o := ds.NewOrderFromSlice(n)
-	for _, x := range n {
+	for i, x := range n {
 		o.Delete(x)
 		if !o.IsValid() {
 			t.Errorf("Order not valid after deleting %d: %v\n", x, o)
 		}
-	}
-	if len(o) != 0 {
-		t.Errorf("Expected length: %d. Actual: %d\n", 0, len(o))
+		if len(*o) != l - (i+1) {
+			t.Errorf("Expected length: %d. Actual: %d\n", l-(i+1), len(*o))
+		}
 	}
 }
-
