@@ -36,36 +36,36 @@ func TestShortestPath(t *testing.T) {
 	}
 }
 
-func TestReadVE(t *testing.T) {
-	G := ds.ReadVE("testdata/e")
-	expectedLen := 20
-	expectedCost := -4635
-	expectedEdges := 10
-	edges, cost := G.EdgesCost()
-	len := G.Len()
-	if len != expectedLen {
-		t.Errorf("expectedLen: %d ; actual len: %d\n", expectedLen, len)
-	}
-	if edges != expectedEdges {
-		t.Errorf("expectedEdges: %d ; actual edgest: %d\n", expectedEdges, edges)
-	}
-	if cost != expectedCost {
-		t.Errorf("expectedCost: %d ; actual cost: %d\n", expectedCost, cost)
-	}
-}
-func TestMST(t *testing.T) {
-	G := ds.ReadVE("testdata/e")
-	expectedCost := -10519
-	expectedEdges := 1
-	mst, cost := G.MST()
-	if cost != expectedCost {
-		t.Errorf("expectedCost: %d ; actual cost: %d\n", expectedCost, cost)
-	}
-	edges, cost2 := mst.EdgesCost()
-	if edges != expectedEdges {
-		t.Errorf("expectedEdges: %d ; actual edgest: %d\n", expectedEdges, edges)
-	}
-	if cost != expectedCost {
-		t.Errorf("expectedCost: %d ; actual cost2: %d\n", expectedCost, cost2)
-	}
-}
+// func TestReadVE(t *testing.T) {
+// 	G := ds.ReadVE("testdata/ve")
+// 	expectedLen := 20
+// 	expectedCost := -4635
+// 	expectedEdges := 10
+// 	edges, cost := G.EdgesCost()
+// 	len := G.Len()
+// 	if len != expectedLen {
+// 		t.Errorf("expectedLen: %d ; actual len: %d\n", expectedLen, len)
+// 	}
+// 	if edges != expectedEdges {
+// 		t.Errorf("expectedEdges: %d ; actual edgest: %d\n", expectedEdges, edges)
+// 	}
+// 	if cost != expectedCost {
+// 		t.Errorf("expectedCost: %d ; actual cost: %d\n", expectedCost, cost)
+// 	}
+// }
+// func TestMST(t *testing.T) {
+// 	G := ds.ReadVE("testdata/e")
+// 	expectedCost := -10519
+// 	expectedEdges := 1
+// 	mst, cost := G.MST()
+// 	if cost != expectedCost {
+// 		t.Errorf("expectedCost: %d ; actual cost: %d\n", expectedCost, cost)
+// 	}
+// 	edges, cost2 := mst.EdgesCost()
+// 	if edges != expectedEdges {
+// 		t.Errorf("expectedEdges: %d ; actual edgest: %d\n", expectedEdges, edges)
+// 	}
+// 	if cost != expectedCost {
+// 		t.Errorf("expectedCost: %d ; actual cost2: %d\n", expectedCost, cost2)
+// 	}
+// }

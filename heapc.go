@@ -5,19 +5,11 @@ import (
 	"math"
 )
 
-/*
-TODO:
-when order can take duplicates,
-remove the duplicate count map d
-as order could then be used to keep track of duplicates as well
-*/
-
 //heap is a min-heap
 type heap struct {
 	e  []element               // elements in the heap
-	ko map[interface{}]*Order  // map[element.value] to Order containing the element.key: identical element.value can have different element.key
+	ko map[interface{}]*Order  // map[element.value] to Order containing the element.key: identical element.value can have different element.key and duplicates!
 	p  map[element]int         // positions of elements in the heap; keys are element because one pair, key:value can only have one position
-	d  map[element]int         // duplicate count for element that have both key and value indentical (all those identical values have same position in the heap)
 	pk func(a interface{}) int // pk returns priority key for the given value a
 }
 
@@ -36,7 +28,6 @@ func newHeap() *heap {
 		e:  make([]element, 0),
 		ko: make(map[interface{}]*Order),
 		p:  make(map[element]int),
-		d:  make(map[element]int),
 		pk: func(a interface{}) int { return a.(int) },
 	}
 }
@@ -47,7 +38,6 @@ func newHeapWithEval(f func(a interface{}) int) *heap {
 		e:  make([]element, 0),
 		ko: make(map[interface{}]*Order),
 		p:  make(map[element]int),
-		d:  make(map[element]int),
 		pk: f,
 	}
 }
@@ -60,8 +50,8 @@ func (h *heap) Len() int {
 // Count counts element in the heap, duplicated included
 func (h *heap) Count() int {
 	c := 0
-	for _, v := range h.d {
-		c += v
+	for _, o := range h.ko {
+		c += o.Len()
 	}
 	return c
 }
@@ -129,12 +119,22 @@ func (h *heap) IsValid() {
 	if h.IsEmpty() {
 		return
 	}
-	if h.Len() != len(h.d) || h.Len() != len(h.p) {
-		s := fmt.Sprintf("heap length: %d, duplicates count: %d, postions: %d\n", h.Len(), len(h.d), len(h.p))
+	if h.Len() != len(h.p) {
+		s := fmt.Sprintf("heap length: %d, postions: %d\n", h.Len(), len(h.p))
 		panic(s)
 	}
+	keys0, ok := h.ko[h.e[0].value]
+	if !ok {
+		s := fmt.Sprintf("No order keys element 0: %v", h.e[0])
+		panic(s)
+	}
+	if keys0.Len() == 0 {
+		s := fmt.Sprintf("weird! e0: %v\tko[e0]: %v", h.e[0], h.ko[h.e[0].value])
+		panic(s)
+
+	}
 	//checks that min is top element
-	min := h.ko[h.e[0].value].Min()
+	min := keys0.Min()
 	for i, e := range h.e {
 		if e.key < min {
 			s := fmt.Sprintf("Position 0 key: %d. Postion %d key: %d\n", min, i, e.key)
@@ -157,22 +157,21 @@ func (h *heap) checkParentRelation(i int) {
 
 //Insert adds the element to the heap using the provided value to define priority
 func (h *heap) Insert(x interface{}, v int) {
-	// 1. stick x at end of last level
+	// New x, element.value
+	if _, ok := h.ko[x]; !ok {
+		h.ko[x] = NewOrder()
+	}
+	//add in every cases because duplicates allowed
+	h.ko[x].Add(v) 
+
 	e := element{v, x}
+	if _, ok := h.p[e]; ok {
+		return //this was a duplicakte element 
+	}
+
+	// 1. stick e at end of last level
 	h.e = append(h.e, e)
-	if k, ok := h.ko[x]; ok{
-		k.Add(v)
-	} else {
-		h.ko[x] = NewOrderFromInts(v)
-	}
-	//if an element with the same key:value exists, it's already at right position in the heap
-	//just need to increase its duplicate count
-	_, ok := h.d[e]
-	if ok {
-		h.d[e]++
-		return
-	}
-	h.d[e] = 1
+
 	h.p[e] = h.Len() - 1
 	//2. bubble-up: if this violates the parent/child ruled: swap with parent, if this violates again, swap again
 	h.bubbleUp(h.Len() - 1)
@@ -258,21 +257,15 @@ func (h *heap) deleteLastElement() {
 	h.deleteInMaps(e)
 }
 
-// TOFIX : logic to delete in keys
 func (h *heap) deleteInMaps(e element) {
 	if _, ok := h.ko[e.value]; !ok {
 		//element was not present
 		return
 	}
-	// decrease the duplicate count
-	h.d[e]--
-	if h.d[e] == 0 {
-		delete(h.d, e)
+	h.ko[e.value].Delete(e.key)
+	if h.ko[e.value].IsEmpty() {
+		delete(h.ko, e.value)
 		delete(h.p, e)
-		h.ko[e.value].Delete(e.key)
-		if h.ko[e.value].IsEmpty() {
-			delete(h.ko, e.value)
-		}
 	}
 }
 func (h *heap) bubbleDown(i int) {

@@ -229,3 +229,5 @@ func TestOrderAddDeleteDuplicates(t *testing.T) {
 		}
 	}
 }
+
+//TODO: test cases for not !IsValid and delete in empty order
