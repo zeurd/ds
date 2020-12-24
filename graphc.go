@@ -81,7 +81,7 @@ func (g graph) Edges() Set {
 // ShortestPath implements dijkstra to return the shortest path from s to goal and its length
 func (g graph) ShortestPath(from, to int) (int, []int) {
 	X := NewSet()
-	VX := NewHeap()
+	VX := NewHeap(false)
 	A := make(map[int]int)
 	B := make(map[int]int)
 
@@ -147,7 +147,7 @@ func (g graph) path(B map[int]int, s, goal int) []int {
 
 func (g graph) MST() (Graph, int) {
 	X := NewSet()
-	VX := NewHeap()
+	VX := NewHeap(false)
 	A := make(map[int]Edge)
 	T := NewGraph()
 	total := 0
@@ -162,7 +162,7 @@ func (g graph) MST() (Graph, int) {
 		}
 		// there is an edge (s,v)
 		if cost, ok := e[s]; ok {
-			VX.Insert(s, cost)
+			VX.Insert(v, cost)
 			A[v] = Edge{s, v, cost}
 			//fmt.Println(A[v])
 		} else {
@@ -170,7 +170,7 @@ func (g graph) MST() (Graph, int) {
 			VX.Insert(v, 1<<32-1)
 		}
 	}
-	fmt.Println(VX)
+	fmt.Println(VX.Peek())
 	fmt.Println(X)
 
 	//main
@@ -194,27 +194,6 @@ func (g graph) MST() (Graph, int) {
 			}
 		}
 	}
-	fmt.Println(A[s])
+	//fmt.Println(A[s])
 	return T, total
-}
-
-func (g graph) checkCosts(w int, X Set, VX Heap, T Graph, A map[int]struct{ v, c int }, total *int) {
-	for x, newCost := range g[w] {
-		if !X.Contains(x) {
-			vc, ok := A[x]
-			oldCost := vc.c
-			if ok && oldCost <= newCost {
-				return
-			}
-			VX.Update(x, newCost)
-			*total += newCost
-			*total -= oldCost
-			T.RemoveEdge(vc.c, w)
-			T.RemoveEdge(w, vc.c)
-			T.AddVertex(x)
-			T.PutEdge(w, x, newCost)
-			T.PutEdge(x, w, newCost)
-			A[x] = struct{ v, c int }{w, newCost}
-		}
-	}
 }

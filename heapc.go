@@ -7,10 +7,11 @@ import (
 
 //heap is a min-heap
 type heap struct {
-	e  []element               // elements in the heap
-	ko map[interface{}]*Order  // map[element.value] to Order containing the element.key: identical element.value can have different element.key and duplicates!
-	p  map[element]int         // positions of elements in the heap; keys are element because one pair, key:value can only have one position
-	pk func(a interface{}) int // pk returns priority key for the given value a
+	e         []element               // elements in the heap
+	ko        map[interface{}]*Order  // map[element.value] to Order containing the element.key: identical element.value can have different element.key and duplicates!
+	p         map[element]int         // positions of elements in the heap; keys are element because one pair, key:value can only have one position
+	pk        func(a interface{}) int // pk returns priority key for the given value a
+	duplicate bool
 }
 
 type element struct {
@@ -23,22 +24,24 @@ func (h *heap) String() string {
 }
 
 // NewHeap returns a heap without a specific eval function
-func newHeap() *heap {
+func newHeap(duplicate bool) *heap {
 	return &heap{
-		e:  make([]element, 0),
-		ko: make(map[interface{}]*Order),
-		p:  make(map[element]int),
-		pk: func(a interface{}) int { return a.(int) },
+		e:         make([]element, 0),
+		ko:        make(map[interface{}]*Order),
+		p:         make(map[element]int),
+		pk:        func(a interface{}) int { return a.(int) },
+		duplicate: duplicate,
 	}
 }
 
 // NewHeapWithEval foo
-func newHeapWithEval(f func(a interface{}) int) *heap {
+func newHeapWithEval(duplicate bool, f func(a interface{}) int) *heap {
 	return &heap{
-		e:  make([]element, 0),
-		ko: make(map[interface{}]*Order),
-		p:  make(map[element]int),
-		pk: f,
+		e:         make([]element, 0),
+		ko:        make(map[interface{}]*Order),
+		p:         make(map[element]int),
+		pk:        f,
+		duplicate: duplicate,
 	}
 }
 
@@ -160,13 +163,16 @@ func (h *heap) Insert(x interface{}, v int) {
 	// New x, element.value
 	if _, ok := h.ko[x]; !ok {
 		h.ko[x] = NewOrder()
+	} else if !h.duplicate {
+		//panic(fmt.Sprintf("duplicate insertion: %v", x))
+		return
 	}
 	//add in every cases because duplicates allowed
-	h.ko[x].Add(v) 
+	h.ko[x].Add(v)
 
 	e := element{v, x}
 	if _, ok := h.p[e]; ok {
-		return //this was a duplicakte element 
+		return //this was a duplicakte element
 	}
 
 	// 1. stick e at end of last level

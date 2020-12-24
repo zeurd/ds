@@ -51,7 +51,7 @@ func TestReadVE(t *testing.T) {
 	}
 }
 func TestMST(t *testing.T) {
-	G, _, _, _ := ds.ReadVE("testdata/ve_2_10_-12829", true)
+	G, _, _, _ := ds.ReadVE("testdata/ve_test", true)
 	expectedCost := -10519
 	expectedEdges := 1
 	mst, cost := G.MST()

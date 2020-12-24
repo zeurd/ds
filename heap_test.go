@@ -7,7 +7,7 @@ import (
 	"github.com/zeurd/ds"
 )
 func intHeap() ds.Heap {
-	h := ds.NewHeap()
+	h := ds.NewHeap(false)
 	h.Push(1)
 	h.Push(2)
 	h.Push(50)
@@ -60,7 +60,7 @@ func TestHeapDelete(t *testing.T) {
 }
 
 func TestHeapPop(t *testing.T) {
-	h := ds.NewHeap()
+	h := ds.NewHeap(false)
 	s := ds.NewSet()
 	n := 30
 	for i := 0; i <= n; i++ {
@@ -83,7 +83,7 @@ func TestHeapPop(t *testing.T) {
 
 func TestHeapSubtree(t *testing.T) {
 	n := 30
-	h := ds.NewHeap()
+	h := ds.NewHeap(false)
 	for i := 0; i <= n; i++ {
 		h.Push(i)
 	}
@@ -102,7 +102,7 @@ func TestHeapSubtree(t *testing.T) {
 
 func TestHeapEdge(t *testing.T) {
 	g, _, _, _ := ds.ReadVE("testdata/ve_test", false)
-	VX := ds.NewHeap()
+	VX := ds.NewHeap(true)
 	for edge := range g.Edges() {
 		e := edge.(ds.Edge)
 		VX.Insert(e.To(), e.Weight())

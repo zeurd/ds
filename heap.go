@@ -17,11 +17,11 @@ type Heap interface {
 }
 
 // NewHeap returns a new heap
-func NewHeap() Heap {
-	return newHeap()
+func NewHeap(duplicate bool) Heap {
+	return newHeap(duplicate)
 }
 
 // NewHeapWithEvalFunction returns a new heap that uses the given function to evaluate priority in the heap
-func NewHeapWithEvalFunction(f func(x interface{})int ) Heap {
-	return newHeapWithEval(f)
+func NewHeapWithEvalFunction(duplicate bool, f func(x interface{})int) Heap {
+	return newHeapWithEval(duplicate, f)
 }
