@@ -16,7 +16,7 @@ func TestOrderFromSlice(t *testing.T) {
 	if !o.IsValid() {
 		t.Errorf("Order is not valid: %v\n", o)
 	}
-	olit := ds.NewOrderFromSlice([]int{3,2,1})
+	olit := ds.NewOrderFromSlice([]int{3, 2, 1})
 	if len(*olit) != 3 {
 		t.Errorf("Expected (literal) length: %d. Actual: %d\n", 3, len(*olit))
 	}
@@ -100,8 +100,57 @@ func TestOrderDelete(t *testing.T) {
 		if !o.IsValid() {
 			t.Errorf("Order not valid after deleting %d: %v\n", x, o)
 		}
-		if len(*o) != l - (i+1) {
+		if len(*o) != l-(i+1) {
 			t.Errorf("Expected length: %d. Actual: %d\n", l-(i+1), len(*o))
 		}
+	}
+}
+
+func TestNewOrderFromInts(t *testing.T) {
+	o := ds.NewOrderFromInts(2, 4, 7, 3, 0, 8, 10, 11, 7, 13, 9)
+	if !o.IsValid() {
+		t.Errorf("Order not valid: %v\n", o)
+	}
+	if o.Len() != 11 {
+		t.Errorf("Expected length: %d. Actual: %d\n", 11, len(*o))
+	}
+	if o.Max() != 13 {
+		t.Errorf("Expected max: %d. Actual: %d\n", 13, o.Max())
+	}
+	if o.Min() != 0 {
+		t.Errorf("Expected max: %d. Actual: %d\n", 0, o.Min())
+	}
+}
+
+func TestInMap(t *testing.T) {
+	m := make(map[int]*ds.Order)
+	m[0] = ds.NewOrderFromInts(1)
+	if k, ok := m[0]; ok {
+		k.Add(0)
+	}
+	o := m[0]
+	if o.Len() != 2 {
+		t.Errorf("Expected length: %d. Actual: %d\n", 2, len(*o))
+	}
+	if o.Max() != 1 {
+		t.Errorf("Expected max: %d. Actual: %d\n", 1, o.Max())
+	}
+	if o.Min() != 0 {
+		t.Errorf("Expected max: %d. Actual: %d\n", 0, o.Min())
+	}
+	if k, ok := m[1]; ok {
+		k.Add(0)
+	} else {
+		m[1] = ds.NewOrderFromInts(5)
+	}
+	o = m[1]
+	if o.Len() != 1 {
+		t.Errorf("Expected length: %d. Actual: %d\n", 1, len(*o))
+	}
+	if o.Max() != 5 {
+		t.Errorf("Expected max: %d. Actual: %d\n", 5, o.Max())
+	}
+	if o.Min() != 5 {
+		t.Errorf("Expected max: %d. Actual: %d\n", 5, o.Min())
 	}
 }

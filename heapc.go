@@ -5,10 +5,17 @@ import (
 	"math"
 )
 
+/*
+TODO:
+when order can take duplicates,
+remove the duplicate count map d
+as order could then be used to keep track of duplicates as well
+*/
+
 //heap is a min-heap
 type heap struct {
 	e  []element               // elements in the heap
-	ko  map[interface{}]Order   // map[element.value] to Order containing the element.key: identical element.value can have different element.key
+	ko map[interface{}]*Order  // map[element.value] to Order containing the element.key: identical element.value can have different element.key
 	p  map[element]int         // positions of elements in the heap; keys are element because one pair, key:value can only have one position
 	d  map[element]int         // duplicate count for element that have both key and value indentical (all those identical values have same position in the heap)
 	pk func(a interface{}) int // pk returns priority key for the given value a
@@ -27,7 +34,7 @@ func (h *heap) String() string {
 func newHeap() *heap {
 	return &heap{
 		e:  make([]element, 0),
-		k:  make(map[interface{}]Order),
+		ko: make(map[interface{}]*Order),
 		p:  make(map[element]int),
 		d:  make(map[element]int),
 		pk: func(a interface{}) int { return a.(int) },
@@ -38,7 +45,7 @@ func newHeap() *heap {
 func newHeapWithEval(f func(a interface{}) int) *heap {
 	return &heap{
 		e:  make([]element, 0),
-		k:  make(map[interface{}]Order),
+		ko: make(map[interface{}]*Order),
 		p:  make(map[element]int),
 		d:  make(map[element]int),
 		pk: f,
@@ -127,7 +134,7 @@ func (h *heap) IsValid() {
 		panic(s)
 	}
 	//checks that min is top element
-	min := h.k[h.e[0].value][0]
+	min := h.ko[h.e[0].value].Min()
 	for i, e := range h.e {
 		if e.key < min {
 			s := fmt.Sprintf("Position 0 key: %d. Postion %d key: %d\n", min, i, e.key)
@@ -153,7 +160,11 @@ func (h *heap) Insert(x interface{}, v int) {
 	// 1. stick x at end of last level
 	e := element{v, x}
 	h.e = append(h.e, e)
-	h.k[x] = append(h.k[x], v)
+	if k, ok := h.ko[x]; ok{
+		k.Add(v)
+	} else {
+		h.ko[x] = NewOrderFromInts(v)
+	}
 	//if an element with the same key:value exists, it's already at right position in the heap
 	//just need to increase its duplicate count
 	_, ok := h.d[e]
@@ -249,7 +260,7 @@ func (h *heap) deleteLastElement() {
 
 // TOFIX : logic to delete in keys
 func (h *heap) deleteInMaps(e element) {
-	if _, ok := h.k[e.value]; !ok {
+	if _, ok := h.ko[e.value]; !ok {
 		//element was not present
 		return
 	}
@@ -258,8 +269,7 @@ func (h *heap) deleteInMaps(e element) {
 	if h.d[e] == 0 {
 		delete(h.d, e)
 		delete(h.p, e)
-		//need to delete only for k TODO: create new structure for k
-		delete(h.k, e.value)
+		h.ko[e.value].Delete(e.key)
 	}
 }
 func (h *heap) bubbleDown(i int) {
@@ -280,16 +290,16 @@ func (h *heap) IsEmpty() bool {
 
 //Contains returns true if heap contains given element
 func (h *heap) Contains(x interface{}) bool {
-	_, ok := h.k[x]
+	_, ok := h.ko[x]
 	return ok
 }
 
-// Delete deletes the given element (with lowest priority if it has duplicates)
+// Delete deletes the given element (if duplicates: the one with highest key, lowest priority)
 func (h *heap) Delete(x interface{}) {
 	if !h.Contains(x) {
 		return
 	}
-	k := h.k[x][0]
+	k := h.ko[x].Max()
 	e := element{k, x}
 	p := h.p[e]
 	h.delete(p)
@@ -301,13 +311,13 @@ func (h *heap) DeleteKeyValue(k int, x interface{}) {
 	h.delete(p)
 }
 
-// Update updates the priority value of the given element
+// Update updates the priority value of the given element (if duplicates: the one with highest key, lowest priority)
 func (h *heap) Update(x interface{}, key int) {
-	keys, ok := h.k[x]
+	keys, ok := h.ko[x]
 	if !ok {
 		return
 	}
-	k := keys[0]
+	k := keys.Max()
 	h.UpdateKeyValue(x, k, key)
 }
 
@@ -335,8 +345,8 @@ func (h *heap) pos(e element) int {
 
 //Value returns the value and if the element is present (returns the lowest value if duplicates)
 func (h *heap) Value(x interface{}) (int, bool) {
-	if v, ok := h.k[x]; ok {
-		return v[0], ok
+	if v, ok := h.ko[x]; ok {
+		return v.Min(), ok
 	}
 	return 0, false
 }

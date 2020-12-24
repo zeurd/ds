@@ -4,12 +4,25 @@ import (
 	"math/rand"
 )
 
+
+/* TODO:
+ Allow duplicates
+ */
+
 // Order is an slice of sorted int (increasing order)
 type Order []int
 
 // NewOrder returns a new instance of Order
 func NewOrder() *Order {
 	o := make(Order, 0)
+	return &o
+}
+
+// NewOrderFromInts foo
+func NewOrderFromInts(n ...int) *Order{
+	o := make(Order, len(n))
+	copy(o, n)
+	o.quicksort()
 	return &o
 }
 
@@ -24,6 +37,21 @@ func NewOrderFromSlice(n []int) *Order {
 // Len returns the order's length
 func (o *Order) Len() int {
 	return len(*o)
+}
+
+// Get return the element at the given position
+func (o *Order) Get(i int) int {
+	return (*o)[i]
+}
+
+// Min return the first element
+func (o *Order) Min() int {
+	return (*o)[0]
+}
+
+// Max returns the last elenet
+func (o *Order) Max() int {
+	return (*o)[len(*o)-1]
 }
 
 //IsValid returns true if Order has all elements sorted in increasing order
