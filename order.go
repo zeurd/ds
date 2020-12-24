@@ -34,6 +34,11 @@ func NewOrderFromSlice(n []int) *Order {
 	return &o
 }
 
+// IsEmpty returns true if order is empty
+func (o *Order) IsEmpty() bool {
+	return o.Len() == 0
+}
+
 // Len returns the order's length
 func (o *Order) Len() int {
 	return len(*o)

@@ -270,6 +270,9 @@ func (h *heap) deleteInMaps(e element) {
 		delete(h.d, e)
 		delete(h.p, e)
 		h.ko[e.value].Delete(e.key)
+		if h.ko[e.value].IsEmpty() {
+			delete(h.ko, e.value)
+		}
 	}
 }
 func (h *heap) bubbleDown(i int) {
@@ -329,11 +332,6 @@ func (h *heap) UpdateKeyValue(x interface{}, oldKey, newKey int) {
 		h.Insert(x, newKey)
 	}
 }
-
-//Slice returns the heap as slice
-// func (h *heap) Slice() []interface{} {
-// 	return h.e
-// }
 
 // Pos returns the position of x in the heap or -1 if x is not present
 func (h *heap) pos(e element) int {
