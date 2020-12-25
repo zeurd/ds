@@ -81,12 +81,16 @@ func ReadVE(file string, undirected bool) (Graph, int, int, int) {
 	s := bufio.NewScanner(f)
 	i := 0
 	var cost, m, n int
+	nProvided := false
 	for s.Scan() {
 		if i == 0 {
 			i++
 			mn := strings.Split(s.Text(), " ")
 			m, _ = strconv.Atoi(mn[0])
-			n, _ = strconv.Atoi(mn[1])
+			if len(mn) > 1 {
+				n, _ = strconv.Atoi(mn[1])
+				nProvided = true
+			}
 			continue
 		}
 		job := strings.Split(s.Text(), " ")
@@ -96,15 +100,20 @@ func ReadVE(file string, undirected bool) (Graph, int, int, int) {
 		cost += c
 		g.AddVertex(v)
 		g.AddVertex(w)
-		g.PutEdge(v,w,c)
+		g.PutEdge(v, w, c)
+		if !nProvided {
+			n++
+		}
 		if undirected {
-			g.PutEdge(w,v,c)
+			g.PutEdge(w, v, c)
+			if !nProvided{
+				n++
+			}
 		}
 	}
 	err = s.Err()
 	if err != nil {
 		fmt.Println(err)
 	}
-	return g, m,n,cost
+	return g, m, n, cost
 }
-

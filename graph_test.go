@@ -66,3 +66,18 @@ func TestMST(t *testing.T) {
 		t.Errorf("expectedEdges: %d ; actual edgest: %d\n", expectedEdges, edges)
 	}
 }
+
+func TestReadCluster(t *testing.T) {
+	G, m, n, c := ds.ReadVE("testdata/clustering1", true)
+	edges, cost := G.EdgesCost()
+	cost /=2 //because undirected
+	if c != cost {
+		t.Errorf("expectedCost: %d ; actual cost: %d\n", c, cost)
+	}
+	if m != G.Len() {
+		t.Errorf("expected # vertices: %d ; actual : %d\n", m, G.Len())
+	}
+	if n != edges {
+		t.Errorf("expected # edges %d ; actual: %d\n", n, edges)
+	}
+}
