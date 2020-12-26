@@ -1,7 +1,5 @@
 package ds
 
-import "fmt"
-
 //parent rank contain the pointer to parent and the rank
 type parentRank struct {
 	pointer int
@@ -39,18 +37,15 @@ func (u UnionFind) isRoot(x int) bool {
 }
 
 // Find returns the group that x belongs to or -1
-func (u UnionFind) Find(x int, b bool) int {
+func (u UnionFind) Find(x int) int {
 	pr, ok := u[x]
 	if !ok {
 		return -1
 	}
-	if b {
-		fmt.Printf("path from %d: %d\n", x, pr.pointer)
-	}
 	if u.isRoot(pr.pointer) {
 		return pr.pointer
 	}
-	p := u.Find(pr.pointer, b)
+	p := u.Find(pr.pointer)
 
 	//path compression
 	pr.pointer = p
@@ -67,13 +62,14 @@ func (u UnionFind) find(x int) (int, *int) {
 		return x, &pr.rank
 	}
 	p, r := u.find(pr.pointer)
-	u[x].pointer = p
+	//path compression
+	pr.pointer = p
 	return p, r
 }
 
 // Connected returns true if x and y belong to the same component
 func (u UnionFind) Connected(x, y int) bool {
-	return u.Find(x, false) == u.Find(y, false)
+	return u.Find(x) == u.Find(y)
 }
 
 // Union unites 2 components
@@ -86,7 +82,6 @@ func (u UnionFind) Union(x, y int) {
 	} else {
 		u[s1].pointer = s2
 		if *r1 == *r2 {
-			fmt.Println("attempt to increment")
 			*r2++
 		}
 	}

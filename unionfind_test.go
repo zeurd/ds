@@ -14,11 +14,11 @@ func TestUF(t *testing.T) {
 		t.Errorf("one added element does not have rank 0: r1(%d), r2(%d), r3(%d)", u.Rank(1), u.Rank(2), u.Rank(3))
 	}
 	u.Union(1, 2)
-	s1 := u.Find(1, true)
-	s2 := u.Find(2, false)
-	s3 := u.Find(3, false)
+	s1 := u.Find(1)
+	s2 := u.Find(2)
+	s3 := u.Find(3)
 	fmt.Println("after")
-	u.Find(1, true)
+	u.Find(1)
 	
 	if s1 != s2 {
 		t.Errorf("union failed (s1 != s2):  s1 (%d), s2 (%d)\n", s1, s2)
