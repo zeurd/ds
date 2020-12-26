@@ -8,10 +8,6 @@ type parentRank struct {
 	rank    int
 }
 
-func (p *parentRank) belongsToRoot(x int) bool {
-	return p.pointer == x
-}
-
 // UnionFind is a a union-finds set
 type UnionFind map[int]*parentRank
 
@@ -30,12 +26,16 @@ func (u UnionFind) Add(xs ...int) {
 // Count returns the number of component
 func (u UnionFind) Count() int {
 	count := 0
-	for x, pr := range u {
-		if pr.belongsToRoot(x) {
+	for x := range u {
+		if u.isRoot(x) {
 			count++
 		}
 	}
 	return count
+}
+
+func (u UnionFind) isRoot(x int) bool {
+	return u[x].pointer == x
 }
 
 // Find returns the group that x belongs to or -1
@@ -47,12 +47,14 @@ func (u UnionFind) Find(x int, b bool) int {
 	if b {
 		fmt.Printf("path from %d: %d\n", x, pr.pointer)
 	}
-	if pr.belongsToRoot(x) {
-		return x
+	if u.isRoot(pr.pointer) {
+		return pr.pointer
 	}
-	//path compression
 	p := u.Find(pr.pointer, b)
-	u[x].pointer = p
+
+	//path compression
+	pr.pointer = p
+
 	return p
 }
 func (u UnionFind) find(x int) (int, *int) {
@@ -61,7 +63,7 @@ func (u UnionFind) find(x int) (int, *int) {
 		return -1, nil
 	}
 	//fmt.Printf("path from %d: %d\n", x, pr.pointer)
-	if pr.belongsToRoot(x) {
+	if u.isRoot(pr.pointer) {
 		return x, &pr.rank
 	}
 	p, r := u.find(pr.pointer)

@@ -21,10 +21,10 @@ func TestUF(t *testing.T) {
 	u.Find(1, true)
 	
 	if s1 != s2 {
-		t.Errorf("union failed s1 | s2: %d, %d\n", s1, s2)
+		t.Errorf("union failed (s1 != s2):  s1 (%d), s2 (%d)\n", s1, s2)
 	}
 	if !u.Connected(1, 2) {
-		t.Errorf("union failed s1 | s2: %d, %d\n", s1, s2)
+		t.Errorf("union failed (1 and 2 not connected): s1 (%d), s2 (%d)\n", s1, s2)
 	}
 	if u.Connected(s3, s1) || u.Connected(s2, s3) {
 		t.Errorf("s3 (%d) connected to s1 (%d) or s2 (%d)", s3, s1, s2)
