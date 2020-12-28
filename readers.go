@@ -162,15 +162,7 @@ func ReadClustering(file string, dist int) (Graph, int, int) {
 	start := time.Now()
 	fmt.Println("start adding edges...")
 	for v := range vert {
-		for v2 := range vert {
-			if v == v2 {
-				continue
-			}
-			d := hammingDistance(v, v2)
-			if d <= dist {
-				g.PutEdge(vert[v], vert[v2], d)
-			}
-		} 
+		atDistance(v, bits)
 	}
 	end := time.Now()
 	fmt.Printf("done adding vert after: %v\n", end.Sub(start))
@@ -185,4 +177,20 @@ func hammingDistance(s1, s2 string) int {
 		}
 	}
 	return dist
+}
+
+func atDistance(s string, bits int) []string {
+	b := []byte(s)
+	ad := make([]string, bits)
+	for i, c := range b {
+		mod := []byte(s)
+		if c == '1' {
+			mod[i] = '0'
+		} else {
+			mod[i] = '1'
+		}
+		ad[i] = string(mod)
+	}
+	panic(ad)
+	//return ad
 }
