@@ -9,7 +9,9 @@ import (
 
 func TestUF(t *testing.T) {
 	u := ds.NewUnionFind()
-	u.Add(1, 2, 3)
+	u.Add(1)
+	u.Add(2)
+	u.Add(3)
 	if u.Rank(1) != 0 || u.Rank(1) != u.Rank(2) || u.Rank(2) != u.Rank(3) {
 		t.Errorf("one added element does not have rank 0: r1(%d), r2(%d), r3(%d)", u.Rank(1), u.Rank(2), u.Rank(3))
 	}
@@ -39,7 +41,16 @@ func TestUF(t *testing.T) {
 
 func TestUFUnion(t *testing.T) {
 	u := ds.NewUnionFind()
-	u.Add(1, 2, 3, 4, 5, 6, 7, 8, 9)
+	for i := 1; i <= 9; i++ {
+		added := u.Add(i)
+		if !added {
+			t.Errorf("%d was not added\n", i)
+		}
+		added = u.Add(i)
+		if added {
+			t.Errorf("%d was added twice \n", i)
+		}
+	}
 	u.Union(1, 5)
 	s1 := u.Find(1)
 	s5 := u.Find(5)
@@ -52,7 +63,7 @@ func TestUFUnion(t *testing.T) {
 	u.Union(1, 9)
 	s1 = u.Find(1)
 	s9 := u.Find(9)
-	merged := u.Union(9,5)
+	merged := u.Union(9, 5)
 	if merged {
 		t.Errorf("5 and 9 should already be in same group")
 	}

@@ -24,11 +24,15 @@ func (c *Clusters) Count() int {
 }
 
 // Add adds x to its own cluster
-func (c *Clusters) Add(x interface{}) {
+func (c *Clusters) Add(x interface{}) bool {
+	if _, ok := c.indices[x]; ok {
+		return false
+	}
 	c.count++
 	c.i++
 	c.indices[x] = c.i
 	c.uf.Add(c.i)
+	return true
 }
 
 // Find returns the cluster that x belongs to

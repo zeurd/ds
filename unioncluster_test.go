@@ -11,8 +11,15 @@ func TestClusters(t *testing.T) {
 	graph, m, _, _ := ds.ReadVE("testdata/cluster_1_8_21", true)
 	var v interface{}
 	for node := range graph.Nodes() {
-		c.Add(node)
+		added := c.Add(node)
 		v = node
+		if !added {
+			t.Errorf("%d was not added\n", v)
+		}
+		added = c.Add(v)
+		if added {
+			t.Errorf("%d was added twice \n", v)
+		}
 	}
 	if m != c.Count() {
 		t.Errorf("wrong count of clusters: %d vs %d\n", m, c.Count())

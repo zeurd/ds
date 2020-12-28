@@ -204,18 +204,15 @@ func (g graph) MST() (Graph, int) {
 
 // Clusters implement the Max-Spacing k-clusters alg
 func (g graph) Cluters(k int) {
-	//oe, clusters := g.orderedEdges()
-
-}
-
-func (g graph) orderedEdges() (*OrderedList, UnionFind) {
-	o := NewOrderedList(func(e interface{}) int { return e.(Edge).Weight() })
-	//uf := NewUnionFind()
+	closest := NewOrderedList(func(e interface{}) int { return e.(Edge).Weight() })
+	clusters := NewClusters()
 	for v, edges := range g {
 		for w, c := range edges {
-			o.Add(Edge{v, w, c})
-			//uf.Add(Edge{v, w, c})
+			closest.Add(Edge{v, w, c})
+			clusters.Add(v)
+			clusters.Add(w)
+			clusters.Union(v,w)
 		}
 	}
-	return o, nil
+
 }

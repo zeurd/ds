@@ -15,10 +15,13 @@ func NewUnionFind() UnionFind {
 }
 
 // Add adds the given element, each in their own new component
-func (u UnionFind) Add(xs ...int) {
-	for _, x := range xs {
+// returns false if the element was already there
+func (u UnionFind) Add(x int) bool {
+	if _, ok := u[x]; !ok {
 		u[x] = &parentRank{x, 0}
+		return true
 	}
+	return false
 }
 
 // Count returns the number of component
