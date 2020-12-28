@@ -42,7 +42,7 @@ func (c *Clusters) Find(x interface{}) int {
 }
 
 // Connected returns trye if x and y are in the same cluster
-func (c *Clusters) Connected(x, y int) bool {
+func (c *Clusters) Connected(x, y interface{}) bool {
 	return c.Find(x) == c.Find(y)
 }
 

@@ -70,7 +70,7 @@ func TestMST(t *testing.T) {
 func TestReadCluster(t *testing.T) {
 	G, m, n, c := ds.ReadVE("testdata/clustering1", true)
 	edges, cost := G.EdgesCost()
-	cost /=2 //because undirected
+	cost /= 2 //because undirected
 	if c != cost {
 		t.Errorf("expectedCost: %d ; actual cost: %d\n", c, cost)
 	}
@@ -79,5 +79,25 @@ func TestReadCluster(t *testing.T) {
 	}
 	if n != edges {
 		t.Errorf("expected # edges %d ; actual: %d\n", n, edges)
+	}
+}
+
+func TestGraphClusters(t *testing.T) {
+	G, m, n, c := ds.ReadVE("testdata/cluster_1_8_21", false)
+	edges, cost := G.EdgesCost()
+	//cost /= 2 //because undirected
+	if c != cost {
+		t.Errorf("expectedCost: %d ; actual cost: %d\n", c, cost)
+	}
+	if m != G.Len() {
+		t.Errorf("expected # vertices: %d ; actual : %d\n", m, G.Len())
+	}
+	if n != edges {
+		t.Errorf("expected # edges %d ; actual: %d\n", n, edges)
+	}
+
+	spacing := G.Clusters(4)
+	if spacing != 21 {
+		t.Errorf("wrong spacing %d\n", spacing)
 	}
 }

@@ -22,6 +22,11 @@ func (o *OrderedList) Len() int {
 	return len(o.e)
 }
 
+// Slice return the ordered list as a slice
+func (o *OrderedList) Slice() []interface{} {
+	return o.e
+}
+
 // Add adds x to the ordered list and returns the position it was inserted at
 func (o *OrderedList) Add(x interface{}) int {
 	pos := o.order.Add(o.compO(x))
@@ -57,8 +62,8 @@ func (o *OrderedList) Search(x interface{}) int {
 }
 
 // Get return the element at the given position
-func (o *OrderedList) Get(i int) int {
-	return o.order.Get(i)
+func (o *OrderedList) Get(i int) interface{} {
+	return o.e[i]
 }
 
 // Min return the first element

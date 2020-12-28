@@ -202,17 +202,35 @@ func (g graph) MST() (Graph, int) {
 	return T, total
 }
 
-// Clusters implement the Max-Spacing k-clusters alg
-func (g graph) Cluters(k int) {
+// Clusters implement the Kruskal algo to compute Max-Spacing k-clusters and returns the spacing
+func (g graph) Clusters(k int) int {
 	closest := NewOrderedList(func(e interface{}) int { return e.(Edge).Weight() })
 	clusters := NewClusters()
+	// get the closest node to each others, and add each in its own clusters
 	for v, edges := range g {
 		for w, c := range edges {
 			closest.Add(Edge{v, w, c})
 			clusters.Add(v)
 			clusters.Add(w)
-			clusters.Union(v,w)
 		}
 	}
-
+	// merge the clusters of the 2 closest nodes until k clusters
+	var last int
+	closestS := closest.Slice()
+	for i, e := range closestS {
+		edge := e.(Edge)
+		clusters.Union(edge.From(), edge.To())
+		if clusters.Count() == k {
+			last = i
+			break
+		}
+	}
+	// find the next closest pair that is separated
+	for i := last + 1; i < len(closestS); i++ {
+		next := closest.Get(i).(Edge)
+		if !clusters.Connected(next.From(), next.To()) {
+			return next.Weight()
+		}
+	}
+	return 0
 }

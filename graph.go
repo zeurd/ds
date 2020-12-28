@@ -14,6 +14,7 @@ type Graph interface {
 	ShortestPath(from, to int) (int, []int)
 	EdgesCost() (int, int)
 	MST() (Graph, int)
+	Clusters(k int) int
 }
 
 // NewGraph returns a default graph: directed and with int vertices
