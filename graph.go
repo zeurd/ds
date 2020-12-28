@@ -3,6 +3,8 @@ package ds
 // Graph defines the graph interface
 type Graph interface {
 	Len() int
+	Edges() Set
+	Nodes() Set
 	AddVertex(v int)
 	RemoveVertex(v int)
 	PutEdge(from, to, weight int)
@@ -12,7 +14,6 @@ type Graph interface {
 	ShortestPath(from, to int) (int, []int)
 	EdgesCost() (int, int)
 	MST() (Graph, int)
-	Edges() Set
 }
 
 // NewGraph returns a default graph: directed and with int vertices

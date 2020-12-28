@@ -34,3 +34,19 @@ func TestOrderedListDelete(t *testing.T) {
 		t.Errorf("delete failed")
 	}
 }
+
+func  TestOrderedListEdges(t *testing.T) {
+	comp := func(e interface{}) int {return e.(ds.Edge).Weight()}
+	o := ds.NewOrderedList(comp)
+	graph, _, _, _ := ds.ReadVE("testdata/cluster_1_8_21", true)
+	edges := graph.Edges()
+	for e := range edges {
+		o.Add(e)
+	}
+	if !o.IsValid() {
+		t.Errorf("ordered list of edges not valid")
+	}
+	if o.Min().(ds.Edge).Weight() != 1 {
+		t.Errorf("smallest edge not first in order: %v", o)
+	}
+}

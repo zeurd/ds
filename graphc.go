@@ -76,6 +76,15 @@ func (g graph) Edges() Set {
 	return set
 }
 
+// Nodes returns a set containing all the nodes in the graph
+func (g graph) Nodes() Set {
+	set := NewSet()
+	for n := range g {
+		set.Add(n)
+	}
+	return set
+}
+
 // ShortestPath implements dijkstra to return the shortest path from s to goal and its length
 func (g graph) ShortestPath(from, to int) (int, []int) {
 	X := NewSet()
@@ -193,8 +202,20 @@ func (g graph) MST() (Graph, int) {
 	return T, total
 }
 
-
 // Clusters implement the Max-Spacing k-clusters alg
-func (g graph) Cluters(k int, dist func(int, int) float64) {
-	//sorted := g.Edges()
+func (g graph) Cluters(k int) {
+	//oe, clusters := g.orderedEdges()
+
+}
+
+func (g graph) orderedEdges() (*OrderedList, UnionFind) {
+	o := NewOrderedList(func(e interface{}) int { return e.(Edge).Weight() })
+	//uf := NewUnionFind()
+	for v, edges := range g {
+		for w, c := range edges {
+			o.Add(Edge{v, w, c})
+			//uf.Add(Edge{v, w, c})
+		}
+	}
+	return o, nil
 }

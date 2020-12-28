@@ -72,10 +72,13 @@ func (u UnionFind) Connected(x, y int) bool {
 	return u.Find(x) == u.Find(y)
 }
 
-// Union unites 2 components
-func (u UnionFind) Union(x, y int) {
+// Union unites 2 components and returns false if the 2 components were already in the same group
+func (u UnionFind) Union(x, y int) bool {
 	s1, r1 := u.find(x)
 	s2, r2 := u.find(y)
+	if s1 == s2 {
+		return false
+	}
 	//- if rank[s1] > rank[s2]: set parent[s2] to s1
 	if *r1 > *r2 {
 		u[s2].pointer = s1
@@ -85,6 +88,7 @@ func (u UnionFind) Union(x, y int) {
 			*r2++
 		}
 	}
+	return true
 }
 
 // Rank returns the rank of an object
