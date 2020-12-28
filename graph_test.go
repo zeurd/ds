@@ -101,3 +101,19 @@ func TestGraphClusters(t *testing.T) {
 		t.Errorf("wrong spacing %d\n", spacing)
 	}
 }
+
+func TestGraphClustering(t *testing.T) {
+	g, m, b := ds.ReadClustering("testdata/clustering_big", 14) //32_18_30
+	if m != g.Len() {
+		t.Errorf("expected # vertices: %d ; actual : %d\n", m, g.Len())
+	}
+	if b != 14 {
+		t.Errorf("expected # bits %d ; actual: %d\n", 14, b)
+	}
+	//largest value of ksuch that there is a k-clustering with spacing at least 3
+	k := g.ClustersDist(3)
+	if k != 21 {
+		t.Errorf("wrong k: %d\n", k)
+	}
+
+}

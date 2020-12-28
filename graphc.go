@@ -234,3 +234,30 @@ func (g graph) Clusters(k int) int {
 	}
 	return 0
 }
+
+func (g graph) ClustersDist(d int) int {
+	closest := NewOrderedList(func(e interface{}) int { return e.(Edge).Weight() })
+	clusters := NewClusters()
+	// get the closest node to each others, and add each in its own clusters
+	for v, edges := range g {
+		for w, c := range edges {
+			closest.Add(Edge{v, w, c})
+			clusters.Add(v)
+			clusters.Add(w)
+		}
+	}
+	// merge the clusters of the 2 closest nodes until k clusters
+	closestS := closest.Slice()
+	for _, e := range closestS {
+
+		edge := e.(Edge)
+		if clusters.Connected(edge.From(), edge.To()) {
+			continue
+		}
+		if edge.Weight() >= d {
+			return clusters.Count()
+		}
+		clusters.Union(edge.From(), edge.To())
+	}
+	return 0
+}

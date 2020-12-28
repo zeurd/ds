@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // ReadGraph reads a txt file containing Graph data in format:
@@ -106,7 +107,7 @@ func ReadVE(file string, undirected bool) (Graph, int, int, int) {
 		}
 		if undirected {
 			g.PutEdge(w, v, c)
-			if !nProvided{
+			if !nProvided {
 				n++
 			}
 		}
@@ -116,4 +117,72 @@ func ReadVE(file string, undirected bool) (Graph, int, int, int) {
 		fmt.Println(err)
 	}
 	return g, m, n, cost
+}
+
+// ReadClustering reads a file in the following format:
+// [# of nodes] [# of bits for each node's label]
+// [first bit of node 1] ... [last bit of node 1]
+// Use the Hamming distance--- the number of differing bits --- between the two nodes' labels.
+// Eg the Hamming distance between the 24-bit label of node #2 above and the label "0 1 0 0 0 1 0 0 0 1 0 1 1 1 1 1 1 0 1 0 0 1 0 1" is 3
+// (since they differ in the 3rd, 7th, and 21st bits)
+// it returns the Graph, m, #bits in each label (= max distance)
+func ReadClustering(file string, dist int) (Graph, int, int) {
+	f, err := os.Open(file)
+	if err != nil {
+		fmt.Println(err)
+		return nil, 0, 0
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+	g := NewGraph()
+	s := bufio.NewScanner(f)
+	i := 0
+	vert := make(map[string]int)
+	var m, bits int
+	for s.Scan() {
+		if i == 0 {
+			i++
+			mn := strings.Split(s.Text(), " ")
+			m, _ = strconv.Atoi(mn[0])
+			bits, _ = strconv.Atoi(mn[1])
+			continue
+		}
+		bitsStr := strings.ReplaceAll(s.Text(), " ", "")
+		v, _ := strconv.ParseInt(bitsStr, 2, 64)
+		vert[bitsStr] = int(v)
+		g.AddVertex(int(v))
+	}
+	err = s.Err()
+	if err != nil {
+		fmt.Println(err)
+	}
+	start := time.Now()
+	fmt.Println("start adding edges...")
+	for v := range vert {
+		for v2 := range vert {
+			if v == v2 {
+				continue
+			}
+			d := hammingDistance(v, v2)
+			if d <= dist {
+				g.PutEdge(vert[v], vert[v2], d)
+			}
+		} 
+	}
+	end := time.Now()
+	fmt.Printf("done adding vert after: %v\n", end.Sub(start))
+	return g, m, bits
+}
+
+func hammingDistance(s1, s2 string) int {
+	dist := 0
+	for i, r := range s1 {
+		if rune(s2[i]) != r {
+			dist++
+		}
+	}
+	return dist
 }

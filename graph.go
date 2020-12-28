@@ -15,6 +15,7 @@ type Graph interface {
 	EdgesCost() (int, int)
 	MST() (Graph, int)
 	Clusters(k int) int
+	ClustersDist(d int) int
 }
 
 // NewGraph returns a default graph: directed and with int vertices
