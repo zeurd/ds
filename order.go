@@ -65,11 +65,11 @@ func (o *Order) IsValid() bool {
 	return true
 }
 
-//Add adds a new int to Order
-func (o *Order) Add(x int) {
+//Add adds a new int to Order and returs the position it was inserted at
+func (o *Order) Add(x int) int {
 	if len(*o) == 0 {
 		*o = []int{x}
-		return
+		return 0
 	}
 	pos := o.Search(x)
 	if pos < 0 {
@@ -78,16 +78,19 @@ func (o *Order) Add(x int) {
 	*o = append(*o, x)
 	copy((*o)[pos+1:], (*o)[pos:])
 	(*o)[pos] = x
+	return pos
 }
 
-// Delete deletes x if it is in the order
-func (o *Order) Delete(x int) {
+// Delete deletes x if it is in the order and returns the position of the delete element
+func (o *Order) Delete(x int) int{
 	if len(*o) == 0 {
-		return
+		return -1
 	}
 	if pos := (*o).Search(x); pos >= 0 {
 		*o = append((*o)[:pos], (*o)[pos+1:]...)
+		return pos
 	}
+	return -1
 }
 
 // Search returns the position of the given element

@@ -1,7 +1,5 @@
 package ds
 
-import "fmt"
-
 // graph representation as map[int][int]int, for map[from]map[to]weight
 type graph map[int]map[int]int
 
@@ -145,6 +143,7 @@ func (g graph) path(B map[int]int, s, goal int) []int {
 	}
 }
 
+// MST returns the minimum spanning tree and its cost using Prim's alg
 func (g graph) MST() (Graph, int) {
 	X := NewSet()
 	VX := NewHeap(false)
@@ -164,14 +163,11 @@ func (g graph) MST() (Graph, int) {
 		if cost, ok := e[s]; ok {
 			VX.Insert(v, cost)
 			A[v] = Edge{s, v, cost}
-			//fmt.Println(A[v])
 		} else {
 			// there is no crossing edge
 			VX.Insert(v, 1<<32-1)
 		}
 	}
-	fmt.Println(VX.Peek())
-	fmt.Println(X)
 
 	//main
 	for !VX.IsEmpty() {
@@ -194,6 +190,11 @@ func (g graph) MST() (Graph, int) {
 			}
 		}
 	}
-	//fmt.Println(A[s])
 	return T, total
+}
+
+
+// Clusters implement the Max-Spacing k-clusters alg
+func (g graph) Cluters(k int, dist func(int, int) float64) {
+	//sorted := g.Edges()
 }
