@@ -41,14 +41,22 @@ func TestUFUnion(t *testing.T) {
 	u := ds.NewUnionFind()
 	u.Add(1, 2, 3, 4, 5, 6, 7, 8, 9)
 	u.Union(1, 5)
-	u.Union(1, 9)
 	s1 := u.Find(1)
 	s5 := u.Find(5)
-	//s9 := u.Find(9)
 	if s1 != s5 {
 		t.Errorf("union failed (s1 != s2):  s1 (%d), s2 (%d)\n", s1, s5)
 	}
 	if !u.Connected(1, 5) {
 		t.Errorf("union failed (1 and 2 not connected): s1 (%d), s2 (%d)\n", s1, s5)
+	}
+	u.Union(1, 9)
+	s1 = u.Find(1)
+	s9 := u.Find(9)
+	merged := u.Union(9,5)
+	if merged {
+		t.Errorf("5 and 9 should already be in same group")
+	}
+	if s1 != s9 {
+		t.Errorf("1 and 9 not merged but in groups: %d and %d\n", s1, s9)
 	}
 }

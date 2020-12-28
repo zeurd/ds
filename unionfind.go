@@ -59,7 +59,7 @@ func (u UnionFind) find(x int) (int, *int) {
 	}
 	//fmt.Printf("path from %d: %d\n", x, pr.pointer)
 	if u.isRoot(pr.pointer) {
-		return x, &pr.rank
+		return pr.pointer, &pr.rank
 	}
 	p, r := u.find(pr.pointer)
 	//path compression
@@ -79,13 +79,13 @@ func (u UnionFind) Union(x, y int) bool {
 	if s1 == s2 {
 		return false
 	}
-	//- if rank[s1] > rank[s2]: set parent[s2] to s1
+	// if rank[s1] > rank[s2]: set parent[s2] to s1
 	if *r1 > *r2 {
 		u[s2].pointer = s1
 	} else {
 		u[s1].pointer = s2
 		if *r1 == *r2 {
-			*r2++
+			*r1++
 		}
 	}
 	return true
