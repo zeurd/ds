@@ -10,15 +10,15 @@ func TestOrderFromSlice(t *testing.T) {
 	l := 10000
 	n := unorderedInts(l)
 	o := ds.NewOrderFromSlice(n)
-	if len(*o) != l {
-		t.Errorf("Expected length: %d. Actual: %d\n", l, len(*o))
+	if o.Len() != l {
+		t.Errorf("Expected length: %d. Actual: %d\n", l, o.Len())
 	}
 	if !o.IsValid() {
 		t.Errorf("Order is not valid: %v\n", o)
 	}
 	olit := ds.NewOrderFromSlice([]int{3, 2, 1})
-	if len(*olit) != 3 {
-		t.Errorf("Expected (literal) length: %d. Actual: %d\n", 3, len(*olit))
+	if olit.Len() != 3 {
+		t.Errorf("Expected (literal) length: %d. Actual: %d\n", 3, olit.Len())
 	}
 	if !olit.IsValid() {
 		t.Errorf("Order (literal) not valid: %v\n", olit)
@@ -32,8 +32,8 @@ func TestOrderDuplicates(t *testing.T) {
 		n[i] = i % 10
 	}
 	o := ds.NewOrderFromSlice(n)
-	if len(*o) != l {
-		t.Errorf("Expected (literal) length: %d. Actual: %d\n", l, len(*o))
+	if o.Len() != l {
+		t.Errorf("Expected (literal) length: %d. Actual: %d\n", l, o.Len())
 	}
 	if !o.IsValid() {
 		t.Errorf("Order (literal) not valid: %v\n", o)
@@ -92,7 +92,7 @@ func TestOrderSearch(t *testing.T) {
 	}
 }
 func TestOrderAdd(t *testing.T) {
-	l := 30000
+	l := 300000
 	n := unorderedInts(l)
 	o := ds.NewOrder()
 	for _, x := range n {
@@ -101,13 +101,13 @@ func TestOrderAdd(t *testing.T) {
 	if !o.IsValid() {
 		t.Errorf("Order is not valid: %v\n", o)
 	}
-	if len(*o) != l {
-		t.Errorf("Expected length: %d. Actual: %d\n", l, len(*o))
+	if o.Len() != l {
+		t.Errorf("Expected length: %d. Actual: %d\n", l, o.Len())
 	}
 }
 
 func TestOrderDelete(t *testing.T) {
-	l := 3000
+	l := 30000
 	n := unorderedInts(l)
 	o := ds.NewOrderFromSlice(n)
 	for i, x := range n {
@@ -115,8 +115,8 @@ func TestOrderDelete(t *testing.T) {
 		if !o.IsValid() {
 			t.Errorf("Order not valid after deleting %d: %v\n", x, o)
 		}
-		if len(*o) != l-(i+1) {
-			t.Errorf("Expected length: %d. Actual: %d\n", l-(i+1), len(*o))
+		if o.Len() != l-(i+1) {
+			t.Errorf("Expected length: %d. Actual: %d\n", l-(i+1), o.Len())
 		}
 	}
 }
@@ -127,7 +127,7 @@ func TestNewOrderFromInts(t *testing.T) {
 		t.Errorf("Order not valid: %v\n", o)
 	}
 	if o.Len() != 11 {
-		t.Errorf("Expected length: %d. Actual: %d\n", 11, len(*o))
+		t.Errorf("Expected length: %d. Actual: %d\n", 11, o.Len())
 	}
 	if o.Max() != 13 {
 		t.Errorf("Expected max: %d. Actual: %d\n", 13, o.Max())
@@ -145,7 +145,7 @@ func TestInMap(t *testing.T) {
 	}
 	o := m[0]
 	if o.Len() != 2 {
-		t.Errorf("Expected length: %d. Actual: %d\n", 2, len(*o))
+		t.Errorf("Expected length: %d. Actual: %d\n", 2, o.Len())
 	}
 	if o.Max() != 1 {
 		t.Errorf("Expected max: %d. Actual: %d\n", 1, o.Max())
@@ -160,7 +160,7 @@ func TestInMap(t *testing.T) {
 	}
 	o = m[1]
 	if o.Len() != 1 {
-		t.Errorf("Expected length: %d. Actual: %d\n", 1, len(*o))
+		t.Errorf("Expected length: %d. Actual: %d\n", 1, o.Len())
 	}
 	if o.Max() != 5 {
 		t.Errorf("Expected max: %d. Actual: %d\n", 5, o.Max())
@@ -213,8 +213,8 @@ func TestOrderAddDeleteDuplicates(t *testing.T) {
 	for _, x := range n {
 		o.Add(x)
 	}
-	if len(*o) != l {
-		t.Errorf("Expected length: %d. Actual: %d\n", l, len(*o))
+	if o.Len() != l {
+		t.Errorf("Expected length: %d. Actual: %d\n", l, o.Len())
 	}
 	if !o.IsValid() {
 		t.Errorf("Order not valid: %v\n", o)
@@ -224,8 +224,8 @@ func TestOrderAddDeleteDuplicates(t *testing.T) {
 		if !o.IsValid() {
 			t.Errorf("Order not valid after deleting %d: %v\n", x, o)
 		}
-		if len(*o) != l-(i+1) {
-			t.Errorf("Expected length: %d. Actual: %d\n", l-(i+1), len(*o))
+		if o.Len() != l-(i+1) {
+			t.Errorf("Expected length: %d. Actual: %d\n", l-(i+1), o.Len())
 		}
 	}
 }

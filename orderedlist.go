@@ -49,7 +49,8 @@ func (o *OrderedList) AddAll(xs ...interface{}) {
 // Delete x if is is the ordered list
 func (o *OrderedList) Delete(x interface{}) int {
 	if pos := (o.order).Search(o.compO(x)); pos >= 0 {
-		*o.order = append((*o.order)[:pos], (*o.order)[pos+1:]...)
+		//*o.order = append((*o.order)[:pos], (*o.order)[pos+1:]...)
+		o.order.Delete(pos)
 		o.e = append(o.e[:pos], o.e[pos+1:]...)
 		return pos
 	}
@@ -78,18 +79,5 @@ func (o *OrderedList) Max() interface{} {
 
 //IsValid returns true if Order has all elements sorted in increasing order
 func (o *OrderedList) IsValid() bool {
-	if len(*o.order) != len(o.e) {
-		panic(o.e)
-	}
-	if len(*o.order) == 0 {
-		return true
-	}
-	n := (*o.order)[0]
-	for i := 1; i < len(*o.order); i++ {
-		if (*o.order)[i] < n {
-			return false
-		}
-		n = (*o.order)[i]
-	}
-	return true
+	return o.order.IsValid()
 }

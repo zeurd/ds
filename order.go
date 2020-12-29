@@ -1,28 +1,28 @@
 package ds
 
+import "sort"
+
 // Order is an slice of sorted int (increasing order)
-type Order []int
+type Order struct {
+	o []int
+}
 
 // NewOrder returns a new instance of Order
 func NewOrder() *Order {
-	o := make(Order, 0)
-	return &o
+	o := make([]int, 0)
+	return &Order{o}
 }
 
 // NewOrderFromInts foo
 func NewOrderFromInts(n ...int) *Order {
-	o := make(Order, len(n))
-	copy(o, n)
-	o.sort()
-	return &o
+	sort.Ints(n)
+	return &Order{n}
 }
 
 // NewOrderFromSlice returns an order with the element in the slice
 func NewOrderFromSlice(n []int) *Order {
-	o := make(Order, len(n))
-	copy(o, n)
-	o.sort()
-	return &o
+	sort.Ints(n)
+	return &Order{n}
 }
 
 // IsEmpty returns true if order is empty
@@ -32,62 +32,71 @@ func (o *Order) IsEmpty() bool {
 
 // Len returns the order's length
 func (o *Order) Len() int {
-	return len(*o)
+	return len(o.o)
 }
 
 // Get return the element at the given position
 func (o *Order) Get(i int) int {
-	return (*o)[i]
+	return o.o[i]
 }
 
 // Min return the first element
 func (o *Order) Min() int {
-	return (*o)[0]
+	return o.o[0]
 }
 
 // Max returns the last elenet
 func (o *Order) Max() int {
-	return (*o)[len(*o)-1]
+	return o.o[len(o.o)-1]
 }
 
 //IsValid returns true if Order has all elements sorted in increasing order
 func (o *Order) IsValid() bool {
-	if len(*o) == 0 {
+	if len(o.o) == 0 {
 		return true
 	}
-	n := (*o)[0]
-	for i := 1; i < len(*o); i++ {
-		if (*o)[i] < n {
+	n := o.o[0]
+	for i := 1; i < len(o.o); i++ {
+		if o.o[i] < n {
 			return false
 		}
-		n = (*o)[i]
+		n = o.o[i]
 	}
 	return true
 }
 
 //Add adds a new int to Order and returs the position it was inserted at
 func (o *Order) Add(x int) int {
-	if len(*o) == 0 {
-		*o = []int{x}
+	if len(o.o) == 0 {
+		o.o = []int{x}
 		return 0
 	}
 	pos := o.Search(x)
 	if pos < 0 {
 		pos = (pos * -1) - 1
 	}
-	*o = append(*o, x)
-	copy((*o)[pos+1:], (*o)[pos:])
-	(*o)[pos] = x
+	o.o = append(o.o, 0)
+	copy(o.o[pos+1:], o.o[pos:])
+	o.o[pos] = x
+	//o.o = insert(o.o, pos, x)
 	return pos
+}
+func insert(a []int, index int, value int) []int {
+	if len(a) == index { // nil or empty slice or after last element
+	    return append(a, value)
+	}
+	a = append(a[:index+1], a[index:]...) // index < len(a)
+	a[index] = value
+	return a	
 }
 
 // Delete deletes x if it is in the order and returns the position of the delete element
-func (o *Order) Delete(x int) int{
-	if len(*o) == 0 {
+func (o *Order) Delete(x int) int {
+	if len(o.o) == 0 {
 		return -1
 	}
-	if pos := (*o).Search(x); pos >= 0 {
-		*o = append((*o)[:pos], (*o)[pos+1:]...)
+	if pos := o.Search(x); pos >= 0 {
+		o.o = append(o.o[:pos], o.o[pos+1:]...)
 		return pos
 	}
 	return -1
@@ -97,16 +106,16 @@ func (o *Order) Delete(x int) int{
 // if the element is not present it returns a negative number:
 // -(potential position)-1
 func (o *Order) Search(x int) int {
-	return o.binarySearch(0, len(*o)-1, x)
+	return o.binarySearch(0, len(o.o)-1, x)
 }
 
 func (o *Order) binarySearch(l, r, x int) int {
 	mid := (r-l)/2 + l
 	if r >= l {
-		if (*o)[mid] == x {
+		if o.o[mid] == x {
 			return mid
 		}
-		if (*o)[mid] > x {
+		if o.o[mid] > x {
 			return o.binarySearch(l, mid-1, x)
 		}
 		return o.binarySearch(mid+1, r, x)
@@ -115,7 +124,7 @@ func (o *Order) binarySearch(l, r, x int) int {
 }
 
 func (o *Order) sort() {
-	o.quick3(0, len(*o)-1)
+	o.quick3(0, len(o.o)-1)
 }
 
 func (o *Order) quick3(lo, hi int) {
@@ -123,9 +132,9 @@ func (o *Order) quick3(lo, hi int) {
 		return
 	}
 	lt, i, gt := lo, lo+1, hi
-	p := (*o)[lo]
+	p := o.o[lo]
 	for i <= gt {
-		cmp := (*o)[i]
+		cmp := o.o[i]
 		if cmp < p {
 			o.swap(lt, i)
 			lt++
@@ -142,5 +151,5 @@ func (o *Order) quick3(lo, hi int) {
 }
 
 func (o *Order) swap(i, j int) {
-	(*o)[i], (*o)[j] = (*o)[j], (*o)[i]
+	o.o[i], o.o[j] = o.o[j], o.o[i]
 }
