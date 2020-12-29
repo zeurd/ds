@@ -3,7 +3,7 @@ package ds
 import "sort"
 
 // Order is an slice of sorted int (increasing order)
-// /!\ in O(n) !!!
+// /!\ Add() in O(n) !!!
 type Order struct {
 	o []int
 }

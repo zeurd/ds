@@ -92,7 +92,7 @@ func TestOrderSearch(t *testing.T) {
 	}
 }
 func TestOrderAdd(t *testing.T) {
-	l := 300000
+	l := 30000
 	n := unorderedInts(l)
 	o := ds.NewOrder()
 	for _, x := range n {
