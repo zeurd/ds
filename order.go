@@ -3,6 +3,7 @@ package ds
 import "sort"
 
 // Order is an slice of sorted int (increasing order)
+// /!\ in O(n) !!!
 type Order struct {
 	o []int
 }
@@ -78,16 +79,8 @@ func (o *Order) Add(x int) int {
 	o.o = append(o.o, 0)
 	copy(o.o[pos+1:], o.o[pos:])
 	o.o[pos] = x
-	//o.o = insert(o.o, pos, x)
+	// o.insert(pos, x)
 	return pos
-}
-func insert(a []int, index int, value int) []int {
-	if len(a) == index { // nil or empty slice or after last element
-	    return append(a, value)
-	}
-	a = append(a[:index+1], a[index:]...) // index < len(a)
-	a[index] = value
-	return a	
 }
 
 // Delete deletes x if it is in the order and returns the position of the delete element
