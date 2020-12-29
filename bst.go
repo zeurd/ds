@@ -64,20 +64,31 @@ func (b *Bst) search(n *node, key int) *node {
 
 // Insert foo
 func (b *Bst) Insert(key int, value interface{}) {
-	fmt.Printf("insert %d\n", key)
+	// fmt.Printf("insert %d\n", key)
 	if b.r == nil {
 		b.r = newNode(nil, key, value)
 		return
 	}
 	parent, left := b.searchParent(b.r, key)
-	fmt.Printf("parent: %v\n", parent)
-	fmt.Println()
+	// fmt.Printf("parent: %v\n", parent)
 	child := newNode(parent, key, value)
 	if left {
 		parent.l = child
 	} else {
 		parent.r = child
 	}
+}
+
+// Min returns the min element in the tree
+func (b *Bst) Min() interface{} {
+	min, _ := b.searchParent(b.r, -1<<32)
+	return min.v
+}
+
+// Max returns the max element in the tree
+func (b *Bst) Max() interface{} {
+	min, _ := b.searchParent(b.r, 1<<32-1)
+	return min.v
 }
 
 // keeps track of parent, to know where to insert
@@ -100,6 +111,18 @@ func (b *Bst) searchParent(p *node, key int) (*node, bool) {
 }
 
 // Slice returns a sorted slice
-func (b *Bst) Slice() []int {
-	return nil
+func (b *Bst) Slice() []interface{} {
+	s := make([]interface{},0)
+	b.inOrder(b.r, &s)
+	return s
+}
+
+// in order traversal: right - root - left
+func (b *Bst) inOrder(n *node, s *[]interface{}) {
+	if n == nil {
+		return
+	}
+	b.inOrder(n.l, s)
+	*s = append(*s, n.v)
+	b.inOrder(n.r,s)
 }
