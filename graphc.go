@@ -1,5 +1,10 @@
 package ds
 
+import (
+	"fmt"
+	"time"
+)
+
 // graph representation as map[int][int]int, for map[from]map[to]weight
 type graph map[int]map[int]int
 
@@ -207,13 +212,26 @@ func (g graph) Clusters(k int) int {
 	closest := NewOrderedList(func(e interface{}) int { return e.(Edge).Weight() })
 	clusters := NewClusters()
 	// get the closest node to each others, and add each in its own clusters
+
+	now := time.Now()
 	for v, edges := range g {
 		for w, c := range edges {
 			closest.Add(Edge{v, w, c})
+			// clusters.Add(v)
+			// clusters.Add(w)
+		}
+	}
+	now2 := time.Now()
+	fmt.Printf("add  in order took: %v\n", now2.Sub(now))
+	for v, edges := range g {
+		for w := range edges {
+			//closest.Add(Edge{v, w, c})
 			clusters.Add(v)
 			clusters.Add(w)
 		}
 	}
+	now3 := time.Now()
+	fmt.Printf("add in clusters: %v\n", now3.Sub(now2))
 	// merge the clusters of the 2 closest nodes until k clusters
 	var last int
 	closestS := closest.Slice()
@@ -246,6 +264,7 @@ func (g graph) ClustersDist(d int) int {
 			clusters.Add(w)
 		}
 	}
+	fmt.Printf("closest size: %d\n", closest.Len())
 	// merge the clusters of the 2 closest nodes until k clusters
 	closestS := closest.Slice()
 	for _, e := range closestS {
@@ -259,5 +278,5 @@ func (g graph) ClustersDist(d int) int {
 		}
 		clusters.Union(edge.From(), edge.To())
 	}
-	return 0
+	return clusters.Count()
 }

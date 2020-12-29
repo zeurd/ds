@@ -126,7 +126,7 @@ func ReadVE(file string, undirected bool) (Graph, int, int, int) {
 // Eg the Hamming distance between the 24-bit label of node #2 above and the label "0 1 0 0 0 1 0 0 0 1 0 1 1 1 1 1 1 0 1 0 0 1 0 1" is 3
 // (since they differ in the 3rd, 7th, and 21st bits)
 // it returns the Graph, m, #bits in each label (= max distance)
-func ReadClustering(file string, dist int) (Graph, int, int) {
+func ReadClustering(file string) (Graph, int, int) {
 	f, err := os.Open(file)
 	if err != nil {
 		fmt.Println(err)
@@ -162,7 +162,27 @@ func ReadClustering(file string, dist int) (Graph, int, int) {
 	start := time.Now()
 	fmt.Println("start adding edges...")
 	for v := range vert {
-		atDistance(v, bits)
+		at1 := atDistance(v, bits)
+		for _, vat1 := range at1 {
+			v1, ok := vert[vat1]
+			if ok {
+				g.PutEdge(vert[v], v1, 1)
+			}
+			at2 := atDistance(vat1, bits)
+			for _, vat2 := range at2 {
+				v2, ok := vert[vat2]
+				if ok {
+					g.PutEdge(vert[v], v2, 2)
+				}
+				at3 := atDistance(vat2, bits)
+				for _, vat3 := range at3 {
+					v3, ok := vert[vat3]
+					if ok {
+						g.PutEdge(vert[v], v3, 3)
+					}
+				}
+			}
+		}
 	}
 	end := time.Now()
 	fmt.Printf("done adding vert after: %v\n", end.Sub(start))
@@ -191,6 +211,6 @@ func atDistance(s string, bits int) []string {
 		}
 		ad[i] = string(mod)
 	}
-	panic(ad)
-	//return ad
+	//panic(ad)
+	return ad
 }

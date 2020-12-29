@@ -83,7 +83,7 @@ func TestReadCluster(t *testing.T) {
 }
 
 func TestGraphClusters(t *testing.T) {
-	G, m, n, c := ds.ReadVE("testdata/cluster_1_8_21", false)
+	G, m, n, c := ds.ReadVE("testdata/clustering1", false)
 	edges, cost := G.EdgesCost()
 	//cost /= 2 //because undirected
 	if c != cost {
@@ -97,13 +97,13 @@ func TestGraphClusters(t *testing.T) {
 	}
 
 	spacing := G.Clusters(4)
-	if spacing != 21 {
+	if spacing != 106 {
 		t.Errorf("wrong spacing %d\n", spacing)
 	}
 }
 
 func TestGraphClustering(t *testing.T) {
-	g, m, b := ds.ReadClustering("testdata/clustering_big", 14) //32_18_30
+	g, m, b := ds.ReadClustering("testdata/clustering_big") //32_18_30
 	if m != g.Len() {
 		t.Errorf("expected # vertices: %d ; actual : %d\n", m, g.Len())
 	}
