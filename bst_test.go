@@ -54,5 +54,41 @@ func TestBst(t *testing.T) {
 			t.Errorf("Expected order (%v) not equal actual (%v)", expectedOrder, actual)
 		}
 	}
+	if !b.IsValid() {
+		t.Errorf("BST not valid: %v", b)
+	}
+}
 
+func TestBstPredecessor(t *testing.T) {
+	b := ds.NewBst()
+	for i := 0; i <= 10; i++ {
+		b.Insert(i, i)
+	}
+	for i := 1; i <= 10; i++ {
+		expected := i - 1
+		p := b.Predecessor(i).(int)
+		if p != expected {
+			t.Errorf("expected predecessor: %d but got: %d", expected, p)
+		}
+	}
+	if !b.IsValid() {
+		t.Errorf("BST not valid: %v", b)
+	}
+}
+
+func TestBstDelete(t *testing.T) {
+	b := ds.NewBstWithRoot(3, 3)
+	b.Insert(1, 1)
+	b.Insert(5, 5)
+	b.Insert(2, 2)
+	b.Insert(4, 4)
+
+	b.Delete(3)
+	newRoot := b.Root().(int)
+	if newRoot != 2 {
+		t.Errorf("expected new root 2, but got: %d", newRoot)
+	}
+	if !b.IsValid() {
+		t.Errorf("BST not valid: %v", b)
+	}
 }

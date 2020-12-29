@@ -12,6 +12,13 @@ func NewBst() *Bst {
 	return &Bst{}
 }
 
+// NewBstWithRoot foo
+func NewBstWithRoot(key int, value interface{}) *Bst {
+	return &Bst{
+		newNode(nil, key, value),
+	}
+}
+
 type node struct {
 	k int         //key
 	v interface{} //value
@@ -34,12 +41,64 @@ func (n *node) String() string {
 	return s
 }
 
+// meta, return int (the number of children), bool (has left child), bool (is left child)
+func (n *node) meta() (int, bool, bool) {
+	c := 0
+	hasLeft := false
+	isLeft := false
+	if n.l != nil {
+		c++
+		hasLeft = true
+	}
+	if n.r != nil {
+		c++
+	}
+	if n.p != nil && n.p.l == n {
+		isLeft = true
+	}
+	return c, hasLeft, isLeft
+}
+
+func (n *node) replaceChild(r *node, left bool) {
+	if left {
+		n.l = r
+	} else {
+		n.r = r
+	}
+}
+
+func (n *node) getOneChild(left bool) *node {
+	if left {
+		return n.l
+	}
+	return n.r
+}
+
 func newNode(parent *node, key int, value interface{}) *node {
 	return &node{
 		p: parent,
 		k: key,
 		v: value,
 	}
+}
+
+// Root returns the root value of the tree
+func (b *Bst) Root() interface{} {
+	return b.r.v
+}
+
+// IsValid returns true if it b is a valid search tree
+func (b *Bst) IsValid() bool {
+	return b.valid(b.r)
+}
+
+func (b *Bst) valid(n *node) bool {
+	if n == nil {
+		return true
+	}
+	l := n.l
+	r := n.l
+	return b.valid(l) && b.valid(r)
 }
 
 // Search foo
@@ -87,8 +146,8 @@ func (b *Bst) Min() interface{} {
 
 // Max returns the max element in the tree
 func (b *Bst) Max() interface{} {
-	min, _ := b.searchParent(b.r, 1<<32-1)
-	return min.v
+	max, _ := b.searchParent(b.r, 1<<32-1)
+	return max.v
 }
 
 // keeps track of parent, to know where to insert
@@ -112,7 +171,7 @@ func (b *Bst) searchParent(p *node, key int) (*node, bool) {
 
 // Slice returns a sorted slice
 func (b *Bst) Slice() []interface{} {
-	s := make([]interface{},0)
+	s := make([]interface{}, 0)
 	b.inOrder(b.r, &s)
 	return s
 }
@@ -124,5 +183,52 @@ func (b *Bst) inOrder(n *node, s *[]interface{}) {
 	}
 	b.inOrder(n.l, s)
 	*s = append(*s, n.v)
-	b.inOrder(n.r,s)
+	b.inOrder(n.r, s)
+}
+
+// Delete foo
+func (b *Bst) Delete(key int) {
+	n := b.search(b.r, key)
+	nC, hasLeft, isLeft := n.meta()
+	parent := n.p
+
+	// case 0: no child -> delete
+	if nC == 0 {
+		parent.replaceChild(nil, isLeft)
+	} else if nC == 1 {
+		//case 1: one child -> splice out
+		parent.replaceChild(n.getOneChild(hasLeft), isLeft)
+	} else {
+		//case 2: 2 children
+		pred := b.predecessor(n) // by defintion, predecessor is the last right child in its tree (is Right and has no left)
+		b.swap(n, pred)          //n is now pred
+		potentialLeft := pred.getOneChild(true)
+		pred.p.replaceChild(potentialLeft, false)
+	}
+}
+
+// Predecessor returns the predecessor of the given key
+func (b *Bst) Predecessor(key int) interface{} {
+	n := b.search(b.r, key)
+	p := b.predecessor(n)
+	return p.v
+}
+
+func (b *Bst) predecessor(n *node) *node {
+	// case 1: left non-empty, return max key in left sub-tree
+	if n.l != nil {
+		maxL, _ := b.searchParent(n.l, 1<<32-1) //follow right side in left subtree
+		return maxL
+	}
+	// case 2: follow parent until parent.k < n.k
+	parent := n.p
+	for parent != nil && parent.k > n.k {
+		parent = parent.p
+	}
+	return parent
+}
+
+func (b *Bst) swap(n1, n2 *node) {
+	n1.k, n2.k = n2.k, n1.k
+	n1.v, n2.v = n2.v, n1.v
 }
