@@ -1,12 +1,13 @@
 package ds_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/zeurd/ds"
 )
 
-func TestBst(t *testing.T) {
+func TestBstBasic(t *testing.T) {
 	b := ds.NewBst()
 	b.Insert(3, "three")
 	b.Insert(5, "five")
@@ -74,6 +75,9 @@ func TestBstPredecessor(t *testing.T) {
 	if !b.IsValid() {
 		t.Errorf("BST not valid: %v", b)
 	}
+	if b.Height() != 10 {
+		t.Errorf("Expected height: 10; actual: %d\n%v", b.Height(), b.Slice())
+	}
 }
 
 func TestBstDelete(t *testing.T) {
@@ -91,4 +95,12 @@ func TestBstDelete(t *testing.T) {
 	if !b.IsValid() {
 		t.Errorf("BST not valid: %v", b)
 	}
+}
+
+func TestBstFoo(t *testing.T) {
+	b := ds.NewBst()
+	b.Insert(6,6)
+	b.Insert(4,4)
+	b.Insert(9,9)
+	fmt.Println(b)
 }

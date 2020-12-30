@@ -1,5 +1,7 @@
 package ds
 
+import "fmt"
+
 //OrderedList is a list that keeps its element in order
 type OrderedList struct {
 	order *Order
@@ -25,6 +27,10 @@ func (o *OrderedList) Len() int {
 // Slice return the ordered list as a slice
 func (o *OrderedList) Slice() []interface{} {
 	return o.e
+}
+
+func (o *OrderedList) String() string {
+	return fmt.Sprintf("%v", o.e)
 }
 
 // Add adds x to the ordered list and returns the position it was inserted at

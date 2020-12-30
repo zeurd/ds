@@ -82,11 +82,44 @@ func newNode(parent *node, key int, value interface{}) *node {
 		p: parent,
 		k: key,
 		v: value,
+		h: 1,
 	}
 }
 
 func (n *node) isLeaf() bool {
 	return n.r == nil && n.l == nil
+}
+
+type nL struct {
+	x interface{}
+	l int
+}
+
+func (b *Bst) String() string {
+	// if b.r == nil {
+	// 	return "[]"
+	// }
+	// if b.r.isLeaf() {
+	// 	return fmt.Sprintf("[%v]", b.r.v)
+	// }
+	// s := "[ "
+	// q :=
+	// q = append(q, b.r.v)
+	// i := 0
+	// for {
+	// 	nodeCount := len(q)
+	// 	if nodeCount == 0 {
+	// 		break
+	// 	}
+	// 	node := q[i]
+	// 	s += fmt.Sprintf("%v ", node)
+
+	// }
+	cmp := func(x interface{}) int {return x.(nL).l}
+	q := NewOrderedList(cmp)
+	b.inLevels(b.r, 1, q)
+	return q.String()
+
 }
 
 // Root returns the root value of the tree
@@ -96,7 +129,7 @@ func (b *Bst) Root() interface{} {
 
 // Height returns the height of the tree
 func (b *Bst) Height() int {
-	return 1
+	return b.r.h
 }
 
 // IsValid returns true if it b is a valid search tree
@@ -158,12 +191,13 @@ func (b *Bst) InsertFoo(key int, value interface{}) {
 	}
 	parent, left := b.searchParent(b.r, key)
 	// fmt.Printf("parent: %v\n", parent)
-	child := newNode(parent, key, value)
+	n := newNode(parent, key, value)
 	if left {
-		parent.l = child
+		parent.l = n
 	} else {
-		parent.r = child
+		parent.r = n
 	}
+	b.rebalance(n)
 }
 
 // Insert foo
@@ -173,7 +207,11 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 		b.r = n
 		return true
 	}
-	return b.insert(b.r, n)
+	inserted := b.insert(b.r, n)
+	if inserted {
+		b.rebalance(n)
+	}
+	return inserted
 }
 
 func (b *Bst) insert(parent, node *node) bool {
@@ -246,6 +284,17 @@ func (b *Bst) inOrder(n *node, s *[]interface{}) {
 	b.inOrder(n.r, s)
 }
 
+// in levels traversal
+func (b *Bst) inLevels(n *node, level int, q *OrderedList) {
+	if n == nil {
+		return
+	}
+	node := nL{n.v, level}
+	q.Add(node)
+	b.inLevels(n.lgit, level*2, q)
+	b.inLevels(n.r, level*2+1, q)
+}
+
 // Delete foo
 func (b *Bst) Delete(key int) {
 	n := b.search(b.r, key)
@@ -265,6 +314,7 @@ func (b *Bst) Delete(key int) {
 		potentialLeft := pred.getOneChild(true)
 		pred.p.replaceChild(potentialLeft, false)
 	}
+	b.rebalance(n)
 }
 
 // Predecessor returns the predecessor of the given key
@@ -291,4 +341,99 @@ func (b *Bst) predecessor(n *node) *node {
 func (b *Bst) swap(n1, n2 *node) {
 	n1.k, n2.k = n2.k, n1.k
 	n1.v, n2.v = n2.v, n1.v
+}
+
+func (b *Bst) rebalance(n *node) {
+	p := n.p
+	fmt.Printf("Rebalance. n: %v p: %v\n", n, p)
+	if n.l != nil && n.r != nil {
+		if n.l.h > n.r.h+1 {
+			b.rebalanceRight(n)
+		}
+		if n.r.h > n.l.h+1 {
+			b.rebalanceLeft(n)
+		}
+	}
+	if p != nil {
+		b.rebalance(p)
+	}
+}
+
+func (b *Bst) rebalanceRight(n *node) {
+	fmt.Println("rebalance right")
+	//bad case, m, problematic grandchild
+	m := n.l
+	if m != nil && m.r.h > m.l.h {
+		b.rotateLeft(m)
+	}
+	b.rotateRight(n)
+}
+
+func (b *Bst) rebalanceLeft(n *node) {
+	fmt.Println("rebalance left")
+	m := n.r
+	if m != nil && m.l.h > m.r.h {
+		b.rotateRight(m)
+	}
+	b.rotateLeft(n)
+}
+
+func (b *Bst) rotateRight(n *node) {
+	fmt.Println("rotate right")
+	p := n.p
+	if p.k > n.k {
+		panic("rotateLeft: " + n.String())
+	}
+	n.p = p.p
+	n.r = p
+	B := n.r
+	if B != nil {
+		n.r = nil
+		p.l = B
+		b.adjustHeight(B)
+	}
+	b.adjustHeight(p)
+	b.adjustHeight(n)
+
+}
+
+func (b *Bst) rotateLeft(n *node) {
+	fmt.Println("rotate left")
+	p := n.p
+	if p.k > n.k {
+		panic("rotateLeft: " + n.String())
+	}
+	// n keeps p's parent
+	n.p = p.p
+	n.l = p
+	// rewire b
+	B := n.l
+	if B != nil {
+		n.l = nil
+		//check panic: p.r  should be n before that ?
+		p.r = B
+		b.adjustHeight(B)
+	}
+	b.adjustHeight(p)
+	b.adjustHeight(n)
+}
+
+func (b *Bst) adjustHeight(n *node) {
+	n.h = 1 + b.maxH(n.l, n.r)
+}
+
+func (b *Bst) maxH(n1 *node, n2 *node) int {
+	if n1 == nil && n2 == nil {
+		return 0
+	}
+	if n1 == nil {
+		return n2.h
+	}
+	if n2 == nil {
+		return n1.h
+	}
+	if n1.h > n2.h {
+		return n1.h
+	}
+	return n2.h
 }
