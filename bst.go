@@ -1,6 +1,8 @@
 package ds
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Bst is a balanced binary search tree
 type Bst struct {
@@ -25,6 +27,7 @@ type node struct {
 	p *node       //parent
 	l *node       //left child
 	r *node       //right child
+	h int         //height
 }
 
 func (n *node) String() string {
@@ -82,9 +85,18 @@ func newNode(parent *node, key int, value interface{}) *node {
 	}
 }
 
+func (n *node) isLeaf() bool {
+	return n.r == nil && n.l == nil
+}
+
 // Root returns the root value of the tree
 func (b *Bst) Root() interface{} {
 	return b.r.v
+}
+
+// Height returns the height of the tree
+func (b *Bst) Height() int {
+	return 1
 }
 
 // IsValid returns true if it b is a valid search tree
@@ -98,7 +110,23 @@ func (b *Bst) valid(n *node) bool {
 	}
 	l := n.l
 	r := n.l
-	return b.valid(l) && b.valid(r)
+	return b.avlProperty(l, r) && b.valid(l) && b.valid(r)
+}
+
+func (b *Bst) avlProperty(l, r *node) bool {
+	lh := 0
+	rh := 0
+	if l != nil {
+		lh = l.h
+	}
+	if r != nil {
+		rh = r.h
+	}
+	diff := lh - rh
+	if diff < 0 {
+		diff *= -1
+	}
+	return diff <= 1
 }
 
 // Search foo
@@ -121,8 +149,8 @@ func (b *Bst) search(n *node, key int) *node {
 	return b.search(n.l, key)
 }
 
-// Insert foo
-func (b *Bst) Insert(key int, value interface{}) {
+// InsertFoo foo
+func (b *Bst) InsertFoo(key int, value interface{}) {
 	// fmt.Printf("insert %d\n", key)
 	if b.r == nil {
 		b.r = newNode(nil, key, value)
@@ -138,6 +166,38 @@ func (b *Bst) Insert(key int, value interface{}) {
 	}
 }
 
+// Insert foo
+func (b *Bst) Insert(key int, value interface{}) bool {
+	n := newNode(nil, key, value)
+	if b.r == nil {
+		b.r = n
+		return true
+	}
+	return b.insert(b.r, n)
+}
+
+func (b *Bst) insert(parent, node *node) bool {
+	// no duplicates
+	if parent.k == node.k {
+		return false
+	}
+	if parent.k < node.k {
+		if parent.r == nil {
+			node.p = parent
+			parent.r = node
+			return true
+		}
+		return b.insert(parent.r, node)
+	}
+	// parent.k > node.k
+	if parent.l == nil {
+		node.p = parent
+		parent.l = node
+		return true
+	}
+	return b.insert(parent.l, node)
+}
+
 // Min returns the min element in the tree
 func (b *Bst) Min() interface{} {
 	min, _ := b.searchParent(b.r, -1<<32)
@@ -150,7 +210,7 @@ func (b *Bst) Max() interface{} {
 	return max.v
 }
 
-// keeps track of parent, to know where to insert
+// returns the parent where to insert
 func (b *Bst) searchParent(p *node, key int) (*node, bool) {
 	if p.k == key {
 		panic("duplicate")
