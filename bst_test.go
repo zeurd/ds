@@ -99,8 +99,12 @@ func TestBstDelete(t *testing.T) {
 
 func TestBstFoo(t *testing.T) {
 	b := ds.NewBst()
-	b.Insert(6,6)
-	b.Insert(4,4)
-	b.Insert(9,9)
+	b.Insert(6, 6)
+	b.Insert(4, 4)
+	b.Insert(9, 9)
+	b.Insert(3, 3)
+	b.Insert(5, 5)
+	b.Insert(7, 7)
+	//b.Insert(8, 8)
 	fmt.Println(b)
 }

@@ -30,20 +30,6 @@ type node struct {
 	h int         //height
 }
 
-func (n *node) String() string {
-	s := fmt.Sprintf("[%d:%v]", n.k, n.v)
-	if n.p != nil {
-		s += fmt.Sprintf(" (p: %d)", n.p.k)
-	}
-	if n.l != nil {
-		s += fmt.Sprintf(" (lc: %d)", n.l.k)
-	}
-	if n.r != nil {
-		s += fmt.Sprintf(" (rc: %d)", n.r.k)
-	}
-	return s
-}
-
 // meta, return int (the number of children), bool (has left child), bool (is left child)
 func (n *node) meta() (int, bool, bool) {
 	c := 0
@@ -92,30 +78,12 @@ func (n *node) isLeaf() bool {
 
 type nL struct {
 	x interface{}
+	h int
 	l int
 }
 
 func (b *Bst) String() string {
-	// if b.r == nil {
-	// 	return "[]"
-	// }
-	// if b.r.isLeaf() {
-	// 	return fmt.Sprintf("[%v]", b.r.v)
-	// }
-	// s := "[ "
-	// q :=
-	// q = append(q, b.r.v)
-	// i := 0
-	// for {
-	// 	nodeCount := len(q)
-	// 	if nodeCount == 0 {
-	// 		break
-	// 	}
-	// 	node := q[i]
-	// 	s += fmt.Sprintf("%v ", node)
-
-	// }
-	cmp := func(x interface{}) int {return x.(nL).l}
+	cmp := func(x interface{}) int { return x.(nL).l }
 	q := NewOrderedList(cmp)
 	b.inLevels(b.r, 1, q)
 	return q.String()
@@ -182,24 +150,6 @@ func (b *Bst) search(n *node, key int) *node {
 	return b.search(n.l, key)
 }
 
-// InsertFoo foo
-func (b *Bst) InsertFoo(key int, value interface{}) {
-	// fmt.Printf("insert %d\n", key)
-	if b.r == nil {
-		b.r = newNode(nil, key, value)
-		return
-	}
-	parent, left := b.searchParent(b.r, key)
-	// fmt.Printf("parent: %v\n", parent)
-	n := newNode(parent, key, value)
-	if left {
-		parent.l = n
-	} else {
-		parent.r = n
-	}
-	b.rebalance(n)
-}
-
 // Insert foo
 func (b *Bst) Insert(key int, value interface{}) bool {
 	n := newNode(nil, key, value)
@@ -207,11 +157,12 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 		b.r = n
 		return true
 	}
-	inserted := b.insert(b.r, n)
-	if inserted {
+	done := b.insert(b.r, n)
+	n.h = b.max(n.r, n.l) + 1
+	if done {
 		b.rebalance(n)
 	}
-	return inserted
+	return done
 }
 
 func (b *Bst) insert(parent, node *node) bool {
@@ -289,9 +240,9 @@ func (b *Bst) inLevels(n *node, level int, q *OrderedList) {
 	if n == nil {
 		return
 	}
-	node := nL{n.v, level}
+	node := nL{n.v, n.h, level}
 	q.Add(node)
-	b.inLevels(n.lgit, level*2, q)
+	b.inLevels(n.l, level*2, q)
 	b.inLevels(n.r, level*2+1, q)
 }
 
@@ -343,97 +294,81 @@ func (b *Bst) swap(n1, n2 *node) {
 	n1.v, n2.v = n2.v, n1.v
 }
 
-func (b *Bst) rebalance(n *node) {
-	p := n.p
-	fmt.Printf("Rebalance. n: %v p: %v\n", n, p)
-	if n.l != nil && n.r != nil {
-		if n.l.h > n.r.h+1 {
-			b.rebalanceRight(n)
-		}
-		if n.r.h > n.l.h+1 {
-			b.rebalanceLeft(n)
-		}
-	}
-	if p != nil {
-		b.rebalance(p)
-	}
-}
-
-func (b *Bst) rebalanceRight(n *node) {
-	fmt.Println("rebalance right")
-	//bad case, m, problematic grandchild
-	m := n.l
-	if m != nil && m.r.h > m.l.h {
-		b.rotateLeft(m)
-	}
-	b.rotateRight(n)
-}
-
-func (b *Bst) rebalanceLeft(n *node) {
-	fmt.Println("rebalance left")
-	m := n.r
-	if m != nil && m.l.h > m.r.h {
-		b.rotateRight(m)
-	}
-	b.rotateLeft(n)
-}
-
-func (b *Bst) rotateRight(n *node) {
-	fmt.Println("rotate right")
-	p := n.p
-	if p.k > n.k {
-		panic("rotateLeft: " + n.String())
-	}
-	n.p = p.p
-	n.r = p
-	B := n.r
-	if B != nil {
-		n.r = nil
-		p.l = B
-		b.adjustHeight(B)
-	}
-	b.adjustHeight(p)
-	b.adjustHeight(n)
-
-}
-
-func (b *Bst) rotateLeft(n *node) {
-	fmt.Println("rotate left")
-	p := n.p
-	if p.k > n.k {
-		panic("rotateLeft: " + n.String())
-	}
-	// n keeps p's parent
-	n.p = p.p
-	n.l = p
-	// rewire b
-	B := n.l
-	if B != nil {
-		n.l = nil
-		//check panic: p.r  should be n before that ?
-		p.r = B
-		b.adjustHeight(B)
-	}
-	b.adjustHeight(p)
-	b.adjustHeight(n)
-}
-
-func (b *Bst) adjustHeight(n *node) {
-	n.h = 1 + b.maxH(n.l, n.r)
-}
-
-func (b *Bst) maxH(n1 *node, n2 *node) int {
-	if n1 == nil && n2 == nil {
+func (b *Bst) getBalance(n *node) int {
+	if n == nil {
 		return 0
 	}
-	if n1 == nil {
-		return n2.h
+	return b.height(n.l) - b.height(n.r)
+}
+
+func (b *Bst) height(n *node) int {
+	if n == nil {
+		return 0
 	}
-	if n2 == nil {
-		return n1.h
+	return n.h
+}
+
+func (b *Bst) max(n1, n2 *node) int {
+	h1 := b.height(n1)
+	h2 := b.height(n2)
+	if h1 > h2 {
+		return h1
 	}
-	if n1.h > n2.h {
-		return n1.h
+	return h2
+}
+
+func (b *Bst) rebalance(x *node) {
+	n := x.p
+	if n == nil {
+		return
 	}
-	return n2.h
+	n.h = 1 + b.max(n.r, n.l)
+
+	//get balance at the parent of the new node
+	balance := b.getBalance(n)
+	fmt.Printf("Rebalance. n: %v balance: %v\n", x.v, balance)
+	if balance == 0 {
+		return
+	}
+	// rebalance left
+	if balance > 1 {
+		fmt.Println("\tleft")
+		if x.k > n.l.k {
+			//left right case
+			fmt.Println("\tleft right")
+			b.rotateLeft(n.l)
+		}
+		b.rotateRight(n)
+	}
+	//rebalance right
+	if balance < 1 {
+		fmt.Println("\tright")
+		// right left case
+		if x.k < n.r.k {
+			fmt.Println("\tright left")
+			b.rotateRight(n.r)
+		}
+		b.rotateLeft(n)
+	}
+	b.rebalance(n)
+}
+func (b *Bst) rotateLeft(x *node) {
+	y := x.r
+	T2 := y.l
+
+	//rotation
+	y.l = x
+	x.r = T2
+	//update heights
+	x.h = 1 + b.max(x.l, x.r)
+	y.h = 1 + b.max(y.l, y.r)
+}
+
+func (b *Bst) rotateRight(y *node) {
+	x := y.l
+	T2 := x.r
+	x.r = y
+	y.l = T2
+	y.h = 1 + b.max(y.l, y.r)
+	x.h = 1 + b.max(x.l, x.r)
 }
