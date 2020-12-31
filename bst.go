@@ -162,7 +162,7 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 		return true
 	}
 	done := b.insert(b.r, n)
-	n.h = b.maxH(n.r, n.l) + 1
+	//n.h = b.maxH(n.r, n.l) + 1
 	if done {
 		//b.rebalance(n.p)
 	}
