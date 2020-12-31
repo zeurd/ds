@@ -158,16 +158,15 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 	if b.r == nil {
 		b.r = n
 		fmt.Printf(" as root\n")
-		fmt.Println()
-
+		b.len++
 		return true
 	}
 	done := b.insert(b.r, n)
 	if done {
+		b.len++
 		b.rebalance(n.p)
 	}
 	fmt.Printf("RESULT: %v\n", b)
-	fmt.Println()
 	return done
 }
 
@@ -181,7 +180,6 @@ func (b *Bst) insert(parent, node *node) bool {
 		if parent.r == nil {
 			node.p = parent
 			parent.r = node
-			fmt.Printf("as right child of %v\n", parent.v)
 			return true
 		}
 		return b.insert(parent.r, node)
@@ -190,7 +188,6 @@ func (b *Bst) insert(parent, node *node) bool {
 	if parent.l == nil {
 		node.p = parent
 		parent.l = node
-		fmt.Printf("as left child of %v\n", parent.v)
 
 		return true
 	}
@@ -307,55 +304,52 @@ func (b *Bst) getBalance(n *node) int {
 	return b.height(n.l) - b.height(n.r)
 }
 
-func (b *Bst) height(n *node) int {
-	if n == nil {
-		return 0
-	}
-	return n.h
-}
-
-func (b *Bst) maxH(n1, n2 *node) int {
-	h1 := b.height(n1)
-	h2 := b.height(n2)
-	if h1 > h2 {
-		return h1
-	}
-	return h2
-}
-
 func (b *Bst) rebalance(n *node) {
-
 	//get balance at the parent of the new node
 	balance := b.getBalance(n)
-	fmt.Printf("Rebalance. n: %v balance: %v\n", n.v, balance)
 
 	// rebalance left side
 	if balance > 1 {
-		fmt.Println("\tleft")
 		//bad
 		m := n.l
 		if m != nil && b.height(m.r) > b.height(m.l) {
-			fmt.Println("\tleft right")
+			fmt.Printf("m: %v\n", m)
 			b.rotateLeft(m)
 		}
 		b.rotateRight(n)
 	}
 	//rebalance right side
 	if balance < -1 {
-		fmt.Println("\tright")
 		// bad case, need to make an extra rotation
 		m := n.r
 		if m != nil && b.height(m.l) > b.height(m.r) {
-			fmt.Println("\tright left")
 			b.rotateRight(m)
 		}
 		b.rotateLeft(n)
 	}
-	n.h = 1 + b.maxH(n.r, n.l)
+	b.adjustHeight(n)
 	if n.p != nil {
-		fmt.Println("recursion")
 		b.rebalance(n.p)
 	}
+}
+
+func (b *Bst) adjustHeight(n *node) {
+	if n == nil {
+		return
+	}
+	h1 := b.height(n.l)
+	h2 := b.height(n.r)
+	if h1 > h2 {
+		n.h = h1 + 1
+	} else {
+		n.h = h2 + 1
+	}
+}
+func (b *Bst) height(n *node) int {
+	if n == nil {
+		return 0
+	}
+	return n.h
 }
 
 func (b *Bst) rotateLeft(x *node) {
@@ -364,8 +358,6 @@ func (b *Bst) rotateLeft(x *node) {
 	// 0. z is left child of y, that will need to be rewired
 	z := y.l
 	parent := x.p
-
-	fmt.Printf("rotateLeft: %v with %v\n", x.v, y.v)
 
 	// 1. x becomes left child of y (x is smaller by def)
 	y.l = x
@@ -384,9 +376,9 @@ func (b *Bst) rotateLeft(x *node) {
 		z.p = x
 	}
 	// //update heights
-	x.h = 1 + b.maxH(x.l, x.r)
-	y.h = 1 + b.maxH(y.l, y.r)
-
+	b.adjustHeight(x)
+	b.adjustHeight(y)
+	b.adjustHeight(parent)
 }
 
 func (b *Bst) rotateRight(x *node) {
@@ -394,7 +386,6 @@ func (b *Bst) rotateRight(x *node) {
 	y := x.l
 	z := y.r
 	parent := x.p
-	fmt.Printf("rotateRight: %v with %v\n", x.v, y.v)
 	// 1. x becomes right child of y (x is bigger by defintion)
 	y.r = x
 	// 2. y keeps x's parents, x takes y as parent
@@ -413,6 +404,7 @@ func (b *Bst) rotateRight(x *node) {
 	}
 
 	// //update heights
-	x.h = 1 + b.maxH(x.l, x.r)
-	y.h = 1 + b.maxH(y.l, y.r)
+	b.adjustHeight(x)
+	b.adjustHeight(y)
+	b.adjustHeight(parent)
 }

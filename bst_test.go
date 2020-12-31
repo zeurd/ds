@@ -1,7 +1,6 @@
 package ds_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/zeurd/ds"
@@ -88,7 +87,7 @@ func TestBstDelete(t *testing.T) {
 	b.Insert(4, 4)
 
 	b.Delete(3)
-	//newRoot := b.Root().(int)
+	// newRoot := b.Root().(int)
 	// if newRoot != 2 {
 	// 	t.Errorf("expected new root 2, but got: %d", newRoot)
 	// }
@@ -97,22 +96,59 @@ func TestBstDelete(t *testing.T) {
 	}
 }
 
+func TestBstRightLeft(t *testing.T) {
+	b := ds.NewBst()
+	xs := []int{0, 5, 1}
+	for _, x := range xs {
+		b.Insert(x, x)
+	}
+	if b.Min() != 0 {
+		t.Errorf("expected min: %d but found %d", 0, b.Min())
+	}
+	if b.Max() != 5 {
+		t.Errorf("expected max: %d but found %d", 5, b.Max())
+	}
+	if b.Len() != len(xs) {
+		t.Errorf("expected len: %d but found %d", len(xs), b.Len())
+	}
+}
+
+func TestBstLeftRight(t *testing.T) {
+	b := ds.NewBst()
+	xs := []int{5, 0, 1}
+	for _, x := range xs {
+		b.Insert(x, x)
+	}
+	if b.Min() != 0 {
+		t.Errorf("expected min: %d but found %d", 0, b.Min())
+	}
+	if b.Max() != 5 {
+		t.Errorf("expected max: %d but found %d", 5, b.Max())
+	}
+	if b.Len() != len(xs) {
+		t.Errorf("expected len: %d but found %d", len(xs), b.Len())
+	}
+}
+
 func TestBstFoo(t *testing.T) {
 	b := ds.NewBst()
-	min := 0
-	max := 3
-	for i := min; i <= max; i++ {
-		b.Insert(i, i)
+	max := 5
+	xs := []int{0, 1, 2, 3, 4} //unorderedInts(max)
+	for _, x := range xs {
+		b.Insert(x, x)
 	}
-	// for i := max; i >= min; i-- {
-	// 	b.Insert(i, i)
-	// }
-	fmt.Println(b)
-	if b.Min() != min {
-		t.Errorf("expected min: %d but found %d", min, b.Min())
+	if b.Min() != 0 {
+		t.Errorf("expected min: %d but found %d", 0, b.Min())
 	}
-	if b.Max() != max {
-		t.Errorf("expected max: %d but found %d", max, b.Max())
+	if b.Max() != max-1 {
+		t.Errorf("expected max: %d but found %d", max-1, b.Max())
 	}
-	fmt.Println("end")
+	if b.Len() != len(xs) {
+		t.Errorf("expected len: %d but found %d", max, b.Len())
+	}
+
+	if !b.IsValid() {
+		t.Errorf("BST not valid: %v", b)
+	}
+	//fmt.Println(b)
 }
