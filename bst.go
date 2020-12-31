@@ -6,7 +6,8 @@ import (
 
 // Bst is a balanced binary search tree
 type Bst struct {
-	r *node //root node
+	r   *node //root node
+	len int
 }
 
 // NewBst returns a new Bst
@@ -18,6 +19,7 @@ func NewBst() *Bst {
 func NewBstWithRoot(key int, value interface{}) *Bst {
 	return &Bst{
 		newNode(nil, key, value),
+		1,
 	}
 }
 
@@ -90,6 +92,11 @@ func (b *Bst) String() string {
 
 }
 
+// Len returns the number of elements in the tree
+func (b *Bst) Len() int {
+	return b.len
+}
+
 // Root returns the root value of the tree
 func (b *Bst) Root() interface{} {
 	return b.r.v
@@ -115,14 +122,8 @@ func (b *Bst) valid(n *node) bool {
 }
 
 func (b *Bst) avlProperty(l, r *node) bool {
-	lh := 0
-	rh := 0
-	if l != nil {
-		lh = l.h
-	}
-	if r != nil {
-		rh = r.h
-	}
+	lh := b.height(l)
+	rh := b.height(r)
 	diff := lh - rh
 	if diff < 0 {
 		diff *= -1
