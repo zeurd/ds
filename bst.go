@@ -32,6 +32,10 @@ type node struct {
 	h int         //height
 }
 
+func (n *node) String() string{
+	return fmt.Sprintf("%v h:%v", n.v, n.h)
+}
+
 // meta, return int (the number of children), bool (has left child), bool (is left child)
 func (n *node) meta() (int, bool, bool) {
 	c := 0
@@ -153,11 +157,9 @@ func (b *Bst) search(n *node, key int) *node {
 
 // Insert foo
 func (b *Bst) Insert(key int, value interface{}) bool {
-	fmt.Printf("Insert %v ", value)
 	n := newNode(nil, key, value)
 	if b.r == nil {
 		b.r = n
-		fmt.Printf(" as root\n")
 		b.len++
 		return true
 	}
@@ -166,7 +168,6 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 		b.len++
 		b.rebalance(n.p)
 	}
-	fmt.Printf("RESULT: %v\n", b)
 	return done
 }
 
@@ -313,7 +314,6 @@ func (b *Bst) rebalance(n *node) {
 		//bad
 		m := n.l
 		if m != nil && b.height(m.r) > b.height(m.l) {
-			fmt.Printf("m: %v\n", m)
 			b.rotateLeft(m)
 		}
 		b.rotateRight(n)
@@ -352,26 +352,30 @@ func (b *Bst) height(n *node) int {
 	return n.h
 }
 
+func (b *Bst) setParent(parent, y *node) {
+	y.p = parent
+	if parent == nil {
+		b.r = y
+		return
+	} 
+	if parent.k > y.k {
+		parent.l = y
+	} else {
+		parent.r = y
+	}
+}
+
 func (b *Bst) rotateLeft(x *node) {
 	// 0. y is right child of p (right is the heavier side)
 	y := x.r
 	// 0. z is left child of y, that will need to be rewired
 	z := y.l
 	parent := x.p
-	if x.k == 2{
-		fmt.Printf("rotateLeft x (%v), y (%v) parent (%v) \n", x, y, parent)
-	}
 
 	// 1. x becomes left child of y (x is smaller by def)
 	y.l = x
 	// 2. y is new parent and keeps p's parent
-	y.p = parent
-	// 2.1 if x was root, y becomes root
-	if parent == nil {
-		b.r = y
-	} else {
-		parent.r = y
-	}
+	b.setParent(parent, y)
 	x.p = y
 	// 3. z to be rewired to right child of x
 	x.r = z
@@ -392,13 +396,7 @@ func (b *Bst) rotateRight(x *node) {
 	// 1. x becomes right child of y (x is bigger by defintion)
 	y.r = x
 	// 2. y keeps x's parents, x takes y as parent
-	y.p = parent
-	// 2.1 if x was root, y becomes root
-	if parent == nil {
-		b.r = y
-	} else {
-		parent.l = y
-	}
+	b.setParent(parent, y)
 	x.p = y
 	// 3. right child of y becomes left child of x
 	x.l = z

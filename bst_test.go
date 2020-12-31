@@ -1,7 +1,9 @@
 package ds_test
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/zeurd/ds"
 )
@@ -132,11 +134,14 @@ func TestBstLeftRight(t *testing.T) {
 
 func TestBstFoo(t *testing.T) {
 	b := ds.NewBst()
-	max := 5
-	xs := []int{0, 1, 2, 3, 4} //unorderedInts(max)
+	max := 30000
+	xs := unorderedInts(max)
+	t1 := time.Now()
 	for _, x := range xs {
 		b.Insert(x, x)
 	}
+	t2 := time.Now()
+	fmt.Println(t2.Sub(t1))
 	if b.Min() != 0 {
 		t.Errorf("expected min: %d but found %d", 0, b.Min())
 	}
@@ -150,5 +155,6 @@ func TestBstFoo(t *testing.T) {
 	if !b.IsValid() {
 		t.Errorf("BST not valid: %v", b)
 	}
-	//fmt.Println(b)
+	fmt.Println(b.Len())
+	fmt.Println(b.Height())
 }
