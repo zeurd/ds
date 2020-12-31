@@ -32,7 +32,7 @@ type node struct {
 	h int         //height
 }
 
-func (n *node) String() string{
+func (n *node) String() string {
 	return fmt.Sprintf("%v h:%v", n.v, n.h)
 }
 
@@ -201,11 +201,10 @@ func (b *Bst) Min() interface{} {
 }
 
 func (b *Bst) min(n *node) *node {
-	x := b.r
-	for x.l != nil {
-		x = x.l
+	if n.l == nil {
+		return n
 	}
-	return x
+	return b.min(n.l)
 }
 
 // Max returns the max element in the tree
@@ -214,11 +213,10 @@ func (b *Bst) Max() interface{} {
 }
 
 func (b *Bst) max(n *node) *node {
-	x := b.r
-	for x.r != nil {
-		x = x.r
+	if n.r == nil {
+		return n
 	}
-	return x
+	return b.max(n.r)
 }
 
 // Slice returns a sorted slice
@@ -268,7 +266,9 @@ func (b *Bst) Delete(key int) {
 		potentialLeft := pred.getOneChild(true)
 		pred.p.replaceChild(potentialLeft, false)
 	}
-	b.rebalance(n)
+	if n.p != nil {
+		b.rebalance(n.p)
+	}
 }
 
 // Predecessor returns the predecessor of the given key
@@ -281,8 +281,7 @@ func (b *Bst) Predecessor(key int) interface{} {
 func (b *Bst) predecessor(n *node) *node {
 	// case 1: left non-empty, return max key in left sub-tree
 	if n.l != nil {
-		maxL := b.max(n.l) //follow right side in left subtree
-		return maxL
+		return b.max(n.l) //follow right side in left subtree
 	}
 	// case 2: follow parent until parent.k < n.k
 	parent := n.p
@@ -357,7 +356,7 @@ func (b *Bst) setParent(parent, y *node) {
 	if parent == nil {
 		b.r = y
 		return
-	} 
+	}
 	if parent.k > y.k {
 		parent.l = y
 	} else {
