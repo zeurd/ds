@@ -162,11 +162,10 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 		return true
 	}
 	done := b.insert(b.r, n)
-	//n.h = b.maxH(n.r, n.l) + 1
 	if done {
-		//b.rebalance(n.p)
+		b.rebalance(n.p)
 	}
-	fmt.Printf("new root: %v\n", b.r.v)
+	fmt.Printf("RESULT: %v\n", b)
 	fmt.Println()
 	return done
 }
@@ -329,28 +328,27 @@ func (b *Bst) rebalance(n *node) {
 	balance := b.getBalance(n)
 	fmt.Printf("Rebalance. n: %v balance: %v\n", n.v, balance)
 
-	// rebalance left
+	// rebalance left side
 	if balance > 1 {
 		fmt.Println("\tleft")
 		//bad
-		m := n.r
-		if m != nil && b.height(m.l) < b.height(m.r) {
+		m := n.l
+		if m != nil && b.height(m.r) > b.height(m.l) {
 			fmt.Println("\tleft right")
 			b.rotateLeft(m)
 		}
 		b.rotateRight(n)
 	}
-	//rebalance right
+	//rebalance right side
 	if balance < -1 {
 		fmt.Println("\tright")
 		// bad case, need to make an extra rotation
-		m := n.l
-		if m != nil && b.height(m.r) > b.height(m.l) {
+		m := n.r
+		if m != nil && b.height(m.l) > b.height(m.r) {
 			fmt.Println("\tright left")
 			b.rotateRight(m)
 		}
 		b.rotateLeft(n)
-
 	}
 	n.h = 1 + b.maxH(n.r, n.l)
 	if n.p != nil {
@@ -364,16 +362,19 @@ func (b *Bst) rotateLeft(x *node) {
 	y := x.r
 	// 0. z is left child of y, that will need to be rewired
 	z := y.l
+	parent := x.p
 
 	fmt.Printf("rotateLeft: %v with %v\n", x.v, y.v)
 
-	// 1. y was right side so is bigger than x => x becomes left child
+	// 1. x becomes left child of y (x is smaller by def)
 	y.l = x
 	// 2. y is new parent and keeps p's parent
-	y.p = x.p
+	y.p = parent
 	// 2.1 if x was root, y becomes root
-	if x.p == nil {
+	if parent == nil {
 		b.r = y
+	} else {
+		parent.r = y
 	}
 	x.p = y
 	// 3. z to be rewired to right child of x
@@ -391,14 +392,17 @@ func (b *Bst) rotateRight(x *node) {
 	//0.
 	y := x.l
 	z := y.r
+	parent := x.p
 	fmt.Printf("rotateRight: %v with %v\n", x.v, y.v)
-	// 1. y becomes parent
+	// 1. x becomes right child of y (x is bigger by defintion)
 	y.r = x
 	// 2. y keeps x's parents, x takes y as parent
-	y.p = x.p
+	y.p = parent
 	// 2.1 if x was root, y becomes root
-	if x.p == nil {
+	if parent == nil {
 		b.r = y
+	} else {
+		parent.l = y
 	}
 	x.p = y
 	// 3. right child of y becomes left child of x
