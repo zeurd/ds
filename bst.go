@@ -336,11 +336,11 @@ func (b *Bst) rebalance(n *node) {
 	// left is bigger; rebalance left
 	if balance > 1 {
 		fmt.Println("\tleft")
-		if n.k > n.l.k {
-			//left right case
-			fmt.Println("\tleft right")
-			b.rotateLeft(n.l)
-		}
+		// if n.k > n.l.k {
+		// 	//left right case
+		// 	fmt.Println("\tleft right")
+		// 	b.rotateLeft(n.l)
+		// }
 		b.rotateRight(n)
 	}
 	//right is bigger; rebalance right
