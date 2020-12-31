@@ -358,6 +358,9 @@ func (b *Bst) rotateLeft(x *node) {
 	// 0. z is left child of y, that will need to be rewired
 	z := y.l
 	parent := x.p
+	if x.k == 2{
+		fmt.Printf("rotateLeft x (%v), y (%v) parent (%v) \n", x, y, parent)
+	}
 
 	// 1. x becomes left child of y (x is smaller by def)
 	y.l = x
