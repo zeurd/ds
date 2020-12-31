@@ -170,7 +170,7 @@ func (b *Bst) insert(parent, node *node) bool {
 	if parent.k == node.k {
 		return false
 	}
-	if parent.k < node.k {
+	if node.k > parent.k {
 		if parent.r == nil {
 			node.p = parent
 			parent.r = node
@@ -294,6 +294,7 @@ func (b *Bst) swap(n1, n2 *node) {
 	n1.v, n2.v = n2.v, n1.v
 }
 
+// if left subtree is bigger, returns a positive number; negative if right is bigger
 func (b *Bst) getBalance(n *node) int {
 	if n == nil {
 		return 0
@@ -317,41 +318,39 @@ func (b *Bst) max(n1, n2 *node) int {
 	return h2
 }
 
-func (b *Bst) rebalance(x *node) {
-	n := x.p
-	if n == nil {
-		return
-	}
-	n.h = 1 + b.max(n.r, n.l)
+func (b *Bst) rebalance(n *node) {
 
 	//get balance at the parent of the new node
 	balance := b.getBalance(n)
-	fmt.Printf("Rebalance. n: %v balance: %v\n", x.v, balance)
-	if balance == 0 {
-		return
-	}
-	// rebalance left
+	fmt.Printf("Rebalance. n: %v balance: %v\n", n.v, balance)
+
+	// left is bigger; rebalance left
 	if balance > 1 {
 		fmt.Println("\tleft")
-		if x.k > n.l.k {
+		if n.k > n.l.k {
 			//left right case
 			fmt.Println("\tleft right")
 			b.rotateLeft(n.l)
 		}
 		b.rotateRight(n)
 	}
-	//rebalance right
-	if balance < 1 {
+	//right is bigger; rebalance right
+	if balance < -1 {
 		fmt.Println("\tright")
 		// right left case
-		if x.k < n.r.k {
-			fmt.Println("\tright left")
-			b.rotateRight(n.r)
-		}
+		// if n.k < n.r.k {
+		// 	fmt.Println("\tright left")
+		// 	b.rotateRight(n.r)
+		// }
 		b.rotateLeft(n)
+
 	}
-	b.rebalance(n)
+	n.h = 1 + b.max(n.r, n.l)
+	if n.p != nil {
+		b.rebalance(n.p)
+	}
 }
+
 func (b *Bst) rotateLeft(x *node) {
 	y := x.r
 	T2 := y.l
@@ -362,6 +361,8 @@ func (b *Bst) rotateLeft(x *node) {
 	//update heights
 	x.h = 1 + b.max(x.l, x.r)
 	y.h = 1 + b.max(y.l, y.r)
+
+	x.l = y
 }
 
 func (b *Bst) rotateRight(y *node) {
@@ -370,5 +371,6 @@ func (b *Bst) rotateRight(y *node) {
 	x.r = y
 	y.l = T2
 	y.h = 1 + b.max(y.l, y.r)
-	x.h = 1 + b.max(x.l, x.r)
+
+	y.r = x
 }

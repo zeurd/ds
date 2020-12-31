@@ -99,12 +99,18 @@ func TestBstDelete(t *testing.T) {
 
 func TestBstFoo(t *testing.T) {
 	b := ds.NewBst()
-	b.Insert(6, 6)
-	b.Insert(4, 4)
-	b.Insert(9, 9)
-	b.Insert(3, 3)
-	b.Insert(5, 5)
-	b.Insert(7, 7)
-	//b.Insert(8, 8)
+	min := 0
+	max := 2
+	for i := min; i <= max; i++ {
+		fmt.Printf("Insert: %d\n", i)
+		b.Insert(i, i)
+	}
 	fmt.Println(b)
+	if b.Min() != min {
+		t.Errorf("expected min: %d but found %d", min, b.Min())
+	}
+	if b.Max() != max {
+		t.Errorf("expected max: %d but found %d", max, b.Max())
+	}
+	fmt.Println("end")
 }
