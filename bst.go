@@ -152,9 +152,13 @@ func (b *Bst) search(n *node, key int) *node {
 
 // Insert foo
 func (b *Bst) Insert(key int, value interface{}) bool {
+	fmt.Printf("Insert %v ", value)
 	n := newNode(nil, key, value)
 	if b.r == nil {
 		b.r = n
+		fmt.Printf(" as root\n")
+		fmt.Println()
+
 		return true
 	}
 	done := b.insert(b.r, n)
@@ -162,6 +166,8 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 	if done {
 		b.rebalance(n)
 	}
+	fmt.Printf("new root: %v", b.r.v)
+	fmt.Println()
 	return done
 }
 
@@ -174,6 +180,7 @@ func (b *Bst) insert(parent, node *node) bool {
 		if parent.r == nil {
 			node.p = parent
 			parent.r = node
+			fmt.Printf("as right child of %v\n", parent.v)
 			return true
 		}
 		return b.insert(parent.r, node)
@@ -182,6 +189,8 @@ func (b *Bst) insert(parent, node *node) bool {
 	if parent.l == nil {
 		node.p = parent
 		parent.l = node
+		fmt.Printf("as left child of %v\n", parent.v)
+
 		return true
 	}
 	return b.insert(parent.l, node)
@@ -347,30 +356,59 @@ func (b *Bst) rebalance(n *node) {
 	}
 	n.h = 1 + b.max(n.r, n.l)
 	if n.p != nil {
+		fmt.Println("recursion")
 		b.rebalance(n.p)
 	}
 }
 
 func (b *Bst) rotateLeft(x *node) {
+	// 0. y is right child of p (right is the heavier side)
 	y := x.r
-	T2 := y.l
+	// 0. z is left child of y, that will need to be rewired
+	z := y.l
 
-	//rotation
+	fmt.Printf("rotateLeft: %v with %v\n", x.v, y.v)
+
+	// 1. y was right side so is bigger than x => x becomes left child
 	y.l = x
-	x.r = T2
-	//update heights
+	// 2. y is new parent and keeps p's parent
+	y.p = x.p
+	// 2.1 if x was root, y becomes root
+	if x.p == nil {
+		b.r = y
+	}
+	x.p = y
+	// 3. z to be rewired to right child of x
+	x.r = z
+	if z != nil {
+		z.p = x
+	}
+	// //update heights
 	x.h = 1 + b.max(x.l, x.r)
 	y.h = 1 + b.max(y.l, y.r)
 
-	x.l = y
 }
 
-func (b *Bst) rotateRight(y *node) {
-	x := y.l
-	T2 := x.r
-	x.r = y
-	y.l = T2
-	y.h = 1 + b.max(y.l, y.r)
-
+func (b *Bst) rotateRight(x *node) {
+	//0.
+	y := x.l
+	z := y.r
+	// 1. y becomes parent
 	y.r = x
+	// 2. y keeps x's parents, x takes y as parent
+	y.p = x.p
+	// 2.1 if x was root, y becomes root
+	if x.p == nil {
+		b.r = y
+	}
+	x.p = y
+	// 3. right child of y becomes left child of x
+	x.l = y.r
+	if z != nil {
+		z.p = x
+	}
+
+	// //update heights
+	x.h = 1 + b.max(x.l, x.r)
+	y.h = 1 + b.max(y.l, y.r)
 }
