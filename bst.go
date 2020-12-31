@@ -162,11 +162,11 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 		return true
 	}
 	done := b.insert(b.r, n)
-	n.h = b.max(n.r, n.l) + 1
+	n.h = b.maxH(n.r, n.l) + 1
 	if done {
-		b.rebalance(n)
+		//b.rebalance(n.p)
 	}
-	fmt.Printf("new root: %v", b.r.v)
+	fmt.Printf("new root: %v\n", b.r.v)
 	fmt.Println()
 	return done
 }
@@ -176,6 +176,7 @@ func (b *Bst) insert(parent, node *node) bool {
 	if parent.k == node.k {
 		return false
 	}
+	parent.h++
 	if node.k > parent.k {
 		if parent.r == nil {
 			node.p = parent
@@ -198,33 +199,28 @@ func (b *Bst) insert(parent, node *node) bool {
 
 // Min returns the min element in the tree
 func (b *Bst) Min() interface{} {
-	min, _ := b.searchParent(b.r, -1<<32)
-	return min.v
+	return b.min(b.r).v
+}
+
+func (b *Bst) min(n *node) *node {
+	x := b.r
+	for x.l != nil {
+		x = x.l
+	}
+	return x
 }
 
 // Max returns the max element in the tree
 func (b *Bst) Max() interface{} {
-	max, _ := b.searchParent(b.r, 1<<32-1)
-	return max.v
+	return b.max(b.r).v
 }
 
-// returns the parent where to insert
-func (b *Bst) searchParent(p *node, key int) (*node, bool) {
-	if p.k == key {
-		panic("duplicate")
+func (b *Bst) max(n *node) *node {
+	x := b.r
+	for x.r != nil {
+		x = x.r
 	}
-	// left
-	if key < p.k {
-		if p.l == nil {
-			return p, true
-		}
-		return b.searchParent(p.l, key)
-	}
-	// right
-	if p.r == nil {
-		return p, false
-	}
-	return b.searchParent(p.r, key)
+	return x
 }
 
 // Slice returns a sorted slice
@@ -287,7 +283,7 @@ func (b *Bst) Predecessor(key int) interface{} {
 func (b *Bst) predecessor(n *node) *node {
 	// case 1: left non-empty, return max key in left sub-tree
 	if n.l != nil {
-		maxL, _ := b.searchParent(n.l, 1<<32-1) //follow right side in left subtree
+		maxL := b.max(n.l) //follow right side in left subtree
 		return maxL
 	}
 	// case 2: follow parent until parent.k < n.k
@@ -318,7 +314,7 @@ func (b *Bst) height(n *node) int {
 	return n.h
 }
 
-func (b *Bst) max(n1, n2 *node) int {
+func (b *Bst) maxH(n1, n2 *node) int {
 	h1 := b.height(n1)
 	h2 := b.height(n2)
 	if h1 > h2 {
@@ -333,28 +329,30 @@ func (b *Bst) rebalance(n *node) {
 	balance := b.getBalance(n)
 	fmt.Printf("Rebalance. n: %v balance: %v\n", n.v, balance)
 
-	// left is bigger; rebalance left
+	// rebalance left
 	if balance > 1 {
 		fmt.Println("\tleft")
-		// if n.k > n.l.k {
-		// 	//left right case
-		// 	fmt.Println("\tleft right")
-		// 	b.rotateLeft(n.l)
-		// }
+		//bad
+		m := n.r
+		if m != nil && b.height(m.l) < b.height(m.r) {
+			fmt.Println("\tleft right")
+			b.rotateLeft(m)
+		}
 		b.rotateRight(n)
 	}
-	//right is bigger; rebalance right
+	//rebalance right
 	if balance < -1 {
 		fmt.Println("\tright")
-		// right left case
-		// if n.k < n.r.k {
-		// 	fmt.Println("\tright left")
-		// 	b.rotateRight(n.r)
-		// }
+		// bad case, need to make an extra rotation
+		m := n.l
+		if m != nil && b.height(m.r) > b.height(m.l) {
+			fmt.Println("\tright left")
+			b.rotateRight(m)
+		}
 		b.rotateLeft(n)
 
 	}
-	n.h = 1 + b.max(n.r, n.l)
+	n.h = 1 + b.maxH(n.r, n.l)
 	if n.p != nil {
 		fmt.Println("recursion")
 		b.rebalance(n.p)
@@ -384,8 +382,8 @@ func (b *Bst) rotateLeft(x *node) {
 		z.p = x
 	}
 	// //update heights
-	x.h = 1 + b.max(x.l, x.r)
-	y.h = 1 + b.max(y.l, y.r)
+	x.h = 1 + b.maxH(x.l, x.r)
+	y.h = 1 + b.maxH(y.l, y.r)
 
 }
 
@@ -393,6 +391,7 @@ func (b *Bst) rotateRight(x *node) {
 	//0.
 	y := x.l
 	z := y.r
+	fmt.Printf("rotateRight: %v with %v\n", x.v, y.v)
 	// 1. y becomes parent
 	y.r = x
 	// 2. y keeps x's parents, x takes y as parent
@@ -403,12 +402,12 @@ func (b *Bst) rotateRight(x *node) {
 	}
 	x.p = y
 	// 3. right child of y becomes left child of x
-	x.l = y.r
+	x.l = z
 	if z != nil {
 		z.p = x
 	}
 
 	// //update heights
-	x.h = 1 + b.max(x.l, x.r)
-	y.h = 1 + b.max(y.l, y.r)
+	x.h = 1 + b.maxH(x.l, x.r)
+	y.h = 1 + b.maxH(y.l, y.r)
 }

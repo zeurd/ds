@@ -104,7 +104,7 @@ func TestBstFoo(t *testing.T) {
 	// for i := min; i <= max; i++ {
 	// 	b.Insert(i, i)
 	// }
-	min := 1
+	min := 0
 	max := 3
 	for i := max; i >= min; i-- {
 		b.Insert(i, i)
