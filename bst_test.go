@@ -1,6 +1,7 @@
 package ds_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/zeurd/ds"
@@ -94,6 +95,7 @@ func TestBstDelete(t *testing.T) {
 		if b.Len() != max-i-1 {
 			t.Errorf("expected length: %d, actual: %d", max-i-1, b.Len())
 		}
+		fmt.Println(b.Height())
 	}
 	if b.Height() != 0 {
 		t.Errorf("not all elements in tree deleted")

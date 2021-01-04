@@ -275,22 +275,18 @@ func (b *Bst) Delete(key int) {
 	}
 	b.len--
 
-	// 0 child
-	if n.l == nil && n.r == nil {
-		b.deleteChildLessNode(n)
-	} else if n.l != nil && n.r != nil {
+	// 2 children => after swapping with predecessor, there is 1 or 0 child
+	if n.l != nil && n.r != nil {
 		// 2 children
 		m := b.predecessor(n)
 		n, m = b.swap(n, m) //pred is now n
-		if n.l == nil {
-			// 0 child after swap
-			b.deleteChildLessNode(n) //not only no right child but also no left
-		} else {
-			// 1 child after swap
-			b.spliceOut(n)
-		}
+	}
+	// 0 child
+	if n.l == nil  && n.r == nil{
+		// 0 child after swap
+		b.deleteChildLessNode(n) //not only no right child but also no left
 	} else {
-		// 1 child
+		// 1 child 
 		b.spliceOut(n)
 	}
 	if n.p != nil {
