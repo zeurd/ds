@@ -81,19 +81,38 @@ func TestBstPredecessor(t *testing.T) {
 }
 
 func TestBstDelete(t *testing.T) {
-	b := ds.NewBstWithRoot(3, 3)
-	b.Insert(1, 1)
-	b.Insert(5, 5)
-	b.Insert(2, 2)
-	b.Insert(4, 4)
+	b := ds.NewBst()
+	max := 10
+	xs := unorderedInts(max)
+	for _, x := range xs {
+		b.Insert(x, x)
+	}
+	fmt.Println(b)
+	for i, x := range xs {
+		fmt.Println(x)
+		b.Delete(x)
+		fmt.Println(b)
+		if !b.IsValid() {
+			t.Errorf("BST not valid: %v", b)
+		}
+		if b.Len() != max-i-1 {
+			t.Errorf("expected length: %d, actual: %d", max-i-1, b.Len())
+		}
+	}
+}
 
-	b.Delete(3)
-	// newRoot := b.Root().(int)
-	// if newRoot != 2 {
-	// 	t.Errorf("expected new root 2, but got: %d", newRoot)
-	// }
-	if !b.IsValid() {
-		t.Errorf("BST not valid: %v", b)
+func TestBstSearch(t *testing.T) {
+	b := ds.NewBst()
+	max := 1000
+	xs := unorderedInts(max)
+	for _, x := range xs {
+		b.Insert(x, x)
+	}
+	for _, x := range xs {
+		f := b.Search(x)
+		if f != x {
+			t.Errorf("looked for %d, found: %d", x, f)
+		}
 	}
 }
 
@@ -133,24 +152,29 @@ func TestBstLeftRight(t *testing.T) {
 
 func TestBstInsert(t *testing.T) {
 	b := ds.NewBst()
-	max := 30000
-	xs := unorderedInts(max)
-	for _, x := range xs {
+	n := 3000
+	xs := unorderedInts(n)
+	expectedMin := n + 1
+	expectedMax := -1
+	for i, x := range xs {
+		if x > expectedMax {
+			expectedMax = x
+		}
+		if x < expectedMin {
+			expectedMin = x
+		}
 		b.Insert(x, x)
+		if !b.IsValid() {
+			t.Errorf("BST not valid: %v", b)
+		}
+		if b.Min() != expectedMin {
+			t.Errorf("expected min: %d but found %d", 0, b.Min())
+		}
+		if b.Max() != expectedMax {
+			t.Errorf("expected max: %d but found %d", expectedMax, b.Max())
+		}
+		if b.Len() != i+1 {
+			t.Errorf("expected len: %d but found %d", i+1, b.Len())
+		}
 	}
-	if b.Min() != 0 {
-		t.Errorf("expected min: %d but found %d", 0, b.Min())
-	}
-	if b.Max() != max-1 {
-		t.Errorf("expected max: %d but found %d", max-1, b.Max())
-	}
-	if b.Len() != len(xs) {
-		t.Errorf("expected len: %d but found %d", max, b.Len())
-	}
-
-	if !b.IsValid() {
-		t.Errorf("BST not valid: %v", b)
-	}
-	fmt.Println(b.Len())
-	
 }

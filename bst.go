@@ -33,40 +33,7 @@ type node struct {
 }
 
 func (n *node) String() string {
-	return fmt.Sprintf("%v h:%v", n.v, n.h)
-}
-
-// meta, return int (the number of children), bool (has left child), bool (is left child)
-func (n *node) meta() (int, bool, bool) {
-	c := 0
-	hasLeft := false
-	isLeft := false
-	if n.l != nil {
-		c++
-		hasLeft = true
-	}
-	if n.r != nil {
-		c++
-	}
-	if n.p != nil && n.p.l == n {
-		isLeft = true
-	}
-	return c, hasLeft, isLeft
-}
-
-func (n *node) replaceChild(r *node, left bool) {
-	if left {
-		n.l = r
-	} else {
-		n.r = r
-	}
-}
-
-func (n *node) getOneChild(left bool) *node {
-	if left {
-		return n.l
-	}
-	return n.r
+	return fmt.Sprintf("%v v:%v", n.k, n.v)
 }
 
 func newNode(parent *node, key int, value interface{}) *node {
@@ -247,28 +214,102 @@ func (b *Bst) inLevels(n *node, level int, q *OrderedList) {
 	b.inLevels(n.r, level*2+1, q)
 }
 
+func (b *Bst) deleteChildLessNode(n *node) {
+	p := n.p
+	//deleting childless root
+	if p == nil {
+		b.r = nil
+		return
+	}
+	if p.r != nil && p.r.k == n.k {
+		p.r = nil
+		return
+	}
+	if p.l != nil && p.l.k == n.k {
+		p.l = nil
+		return
+	}
+	panic("did not delete childless node")
+}
+
+// for n with one single child
+func (b *Bst) spliceOut(n *node) {
+	fmt.Printf("splice out: %d\n", n.k)
+	if n.l == nil && n.r == nil {
+		panic("splice out with no child")
+	}
+	if n.l != nil && n.r != nil {
+		panic("splice out with 2 children")
+	}
+
+	var child *node
+	if n.l != nil {
+		child = n.l
+	} else {
+		child = n.r
+	}
+
+	//promote child
+	parent := n.p
+	child.p = parent
+	if parent == nil {
+		b.r = child
+		fmt.Printf("after root splice out: %v\n", b)
+		return
+	}
+
+	nIsLeft := parent.l != nil && parent.l.k == n.k
+	if nIsLeft {
+		parent.l = child
+	} else {
+		parent.r = child
+	}
+	fmt.Printf("after splice out: %v\n", b)
+}
+
 // Delete foo
 func (b *Bst) Delete(key int) {
 	n := b.search(b.r, key)
-	nC, hasLeft, isLeft := n.meta()
-	parent := n.p
+	if n == nil {
+		panic("not found")
+	}
+	b.len--
 
-	// case 0: no child -> delete
-	if nC == 0 {
-		parent.replaceChild(nil, isLeft)
-	} else if nC == 1 {
-		//case 1: one child -> splice out
-		parent.replaceChild(n.getOneChild(hasLeft), isLeft)
-	} else {
-		//case 2: 2 children
-		pred := b.predecessor(n) // by defintion, predecessor is the last right child in its tree (is Right and has no left)
-		b.swap(n, pred)          //n is now pred
-		potentialLeft := pred.getOneChild(true)
-		pred.p.replaceChild(potentialLeft, false)
+	// 0 child
+	if n.l == nil && n.r == nil {
+		b.deleteChildLessNode(n)
+		return
 	}
-	if n.p != nil {
-		b.rebalance(n.p)
+	// 2 children
+	if n.l != nil && n.r != nil {
+		m := b.predecessor(n)
+		n, m = b.swap(n, m) //pred is now n
+		if n.l == nil {
+			b.deleteChildLessNode(n) //not only no right child but also no left
+			return
+		}
 	}
+	// 1 child
+	b.spliceOut(n)
+
+}
+
+func (b *Bst) swap(n1, n2 *node) (*node, *node) {
+	fmt.Printf("swap %v and %v\n", n1, n2)
+	k1 := n1.k
+	k2 := n2.k
+	v1 := n1.v
+	v2 := n2.v
+
+	n1.k = k2
+	n1.v = v2
+
+	n2.k = k1
+	n2.v = v1
+	fmt.Printf("in swap: %v and %v\n", n1, n2)
+
+	return n2, n1
+
 }
 
 // Predecessor returns the predecessor of the given key
@@ -289,11 +330,6 @@ func (b *Bst) predecessor(n *node) *node {
 		parent = parent.p
 	}
 	return parent
-}
-
-func (b *Bst) swap(n1, n2 *node) {
-	n1.k, n2.k = n2.k, n1.k
-	n1.v, n2.v = n2.v, n1.v
 }
 
 // if left subtree is bigger, returns a positive number; negative if right is bigger
