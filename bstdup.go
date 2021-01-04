@@ -54,6 +54,12 @@ func (b *bstDup) Predecessor(key int) interface{} {
 	return b.bst.Predecessor(key)
 }
 
+func (b *bstDup) MinK() (int, interface{}) {
+	return b.bst.MinK()
+}
+func (b *bstDup) MaxK() (int, interface{}) {
+	return b.bst.MaxK()
+}
 func (b *bstDup) Min() interface{} {
 	return b.bst.Min()
 }

@@ -9,6 +9,8 @@ type BinarySearchTree interface {
 	Predecessor(int) interface{}
 	Min() interface{}
 	Max() interface{}
+	MinK() (int, interface{})
+	MaxK() (int, interface{})
 	Len() int
 	Height() int
 	IsValid() bool
@@ -22,5 +24,5 @@ func NewBinarySearchTree(duplicate bool, kf func(x interface{}) int) BinarySearc
 	if !duplicate {
 		return newBst(kf)
 	}
-	return newBstDup(kf)
+	 return newBstDup(kf)
 }

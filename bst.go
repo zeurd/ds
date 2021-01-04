@@ -186,7 +186,17 @@ func (b *bst) max(n *node) *node {
 	}
 	return b.max(n.r)
 }
+// MinK returns the min element in the tree
+func (b *bst) MinK() (int, interface{}) {
+	m := b.min(b.r)
+	return m.k, m.v
+}
 
+// MaxK returns the max element in the tree
+func (b *bst) MaxK() (int, interface{}) {
+	m := b.max(b.r)
+	return m.k, m.v
+}
 // Slice returns a sorted slice
 func (b *bst) Slice() []interface{} {
 	s := make([]interface{}, 0)
