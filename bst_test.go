@@ -215,3 +215,58 @@ func TestBstEdges(t *testing.T) {
 		t.Errorf("expected len: %d but found %d", 52, b.Len())
 	}
 }
+
+func TestBstDuplicates(t *testing.T) {
+	b := ds.NewBinarySearchTree(true, nil)
+	n := 1000
+	xs := unorderedInts(n)
+	expectedMin := 1_000_000
+	expectedMax := -1_000_000
+	for i, x := range xs {
+		if x > expectedMax {
+			expectedMax = x
+		}
+		if x < expectedMin {
+			expectedMin = x
+		}
+		b.Insert(x, x)
+		b.Insert(x, x)
+		if !b.IsValid() {
+			t.Errorf("BST not valid: %v", b)
+		}
+		if b.Min() != expectedMin {
+			t.Errorf("expected min: %d but found %d", 0, b.Min())
+		}
+		if b.Max() != expectedMax {
+			t.Errorf("expected max: %d but found %d", expectedMax, b.Max())
+		}
+		if b.Len() != (i+1)*2 {
+			t.Errorf("expected len: %d but found %d", (i+1)*2, b.Len())
+		}
+	}
+	l := n*2
+	// delete all x once
+	for i, x := range xs {
+		b.Delete(x)
+		if !b.IsValid() {
+			t.Errorf("BST not valid: %v", b)
+		}
+		if b.Len() != l -i -1 {
+			t.Errorf("expected len: %d but found %d", n-i-1, b.Len())
+		}
+	}
+	// delete all x a second time
+	for i, x := range xs {
+		b.Delete(x)
+		if !b.IsValid() {
+			t.Errorf("BST not valid: %v", b)
+		}
+		if b.Len() != n -i -1 {
+			t.Errorf("expected len: %d but found %d", n-i-1, b.Len())
+		}
+	}
+	if b.Len() != 0 {
+		t.Errorf("bst should be empty but found len: %d", b.Len())
+	}
+
+}

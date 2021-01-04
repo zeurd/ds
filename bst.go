@@ -11,7 +11,7 @@ type bst struct {
 	kf  func(interface{}) int
 }
 
-func newBst(dup bool, kf func(interface{}) int) *bst {
+func newBst(kf func(interface{}) int) *bst {
 	return &bst{
 		kf:  kf,
 	}

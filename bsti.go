@@ -20,7 +20,7 @@ type BinarySearchTree interface {
 // kf, the key function to evaluate the key if intend to use Push(x) and not Insert(k,x)
 func NewBinarySearchTree(duplicate bool, kf func(x interface{}) int) BinarySearchTree {
 	if !duplicate {
-		return newBst(duplicate, kf)
+		return newBst(kf)
 	}
-	return nil
+	return newBstDup(kf)
 }
