@@ -179,3 +179,39 @@ func TestBstInsert(t *testing.T) {
 		}
 	}
 }
+
+func TestBstEdges(t *testing.T) {
+	g, _, _, _ := ds.ReadVE("testdata/ve_10_40_-97121", false)
+	kf := func(x interface{}) int {
+		return x.(ds.Edge).Weight()
+	}
+	expectedMin := 1000000
+	expectedMax := -1
+	b := ds.NewBstWithKeyFunc(kf)
+	for edge := range g.Edges() {
+		e := edge.(ds.Edge)
+		x := e.Weight()
+		if x > expectedMax {
+			expectedMax = x
+		}
+		if x < expectedMin {
+			expectedMin = x
+		}
+		b.Push(e)
+		if !b.IsValid() {
+			t.Errorf("BST not valid: %v", b)
+		}
+		min := b.Min()
+		if min.(ds.Edge).Weight() != expectedMin {
+			t.Errorf("expected min: %d but found %d", expectedMax, b.Min())
+		}
+		max := b.Max()
+		if max.(ds.Edge).Weight() != expectedMax {
+			t.Errorf("expected max: %d but found %d", expectedMax, b.Max())
+		}
+
+	}
+	if b.Len() != 52 {
+		t.Errorf("expected len: %d but found %d", 52, b.Len())
+	}
+}

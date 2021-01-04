@@ -8,6 +8,7 @@ import (
 type Bst struct {
 	r   *node //root node
 	len int
+	kf  func(interface{}) int
 }
 
 // NewBst returns a new Bst
@@ -20,7 +21,20 @@ func NewBstWithRoot(key int, value interface{}) *Bst {
 	return &Bst{
 		newNode(nil, key, value),
 		1,
+		nil,
 	}
+}
+
+// NewBstWithKeyFunc foo
+func NewBstWithKeyFunc(kf func(interface{}) int) *Bst {
+	return &Bst{
+		kf: kf,
+	}
+}
+
+// Push inserts in tree, using kf() to compute the key
+func (b *Bst) Push(x interface{}) {
+	b.Insert(b.kf(x), x)
 }
 
 type node struct {
@@ -271,22 +285,20 @@ func (b *Bst) spliceOut(n *node) {
 func (b *Bst) Delete(key int) {
 	n := b.search(b.r, key)
 	if n == nil {
-		panic("not found")
+		return
 	}
 	b.len--
 
 	// 2 children => after swapping with predecessor, there is 1 or 0 child
 	if n.l != nil && n.r != nil {
-		// 2 children
 		m := b.predecessor(n)
-		n, m = b.swap(n, m) //pred is now n
+		n, m = b.swap(n, m)
 	}
 	// 0 child
-	if n.l == nil  && n.r == nil{
-		// 0 child after swap
-		b.deleteChildLessNode(n) //not only no right child but also no left
+	if n.l == nil && n.r == nil {
+		b.deleteChildLessNode(n)
 	} else {
-		// 1 child 
+		// 1 child
 		b.spliceOut(n)
 	}
 	if n.p != nil {
