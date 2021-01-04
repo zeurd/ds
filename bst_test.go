@@ -186,7 +186,7 @@ func TestBstEdges(t *testing.T) {
 		return x.(ds.Edge).Weight()
 	}
 	expectedMin := 1000000
-	expectedMax := -1
+	expectedMax := -1000000
 	b := ds.NewBstWithKeyFunc(kf)
 	for edge := range g.Edges() {
 		e := edge.(ds.Edge)

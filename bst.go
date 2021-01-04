@@ -9,6 +9,14 @@ type Bst struct {
 	r   *node //root node
 	len int
 	kf  func(interface{}) int
+	dup map[int]int
+}
+
+func newBst(dup bool, kf func(interface{}) int) *Bst {
+	return &Bst{
+		kf:  kf,
+		dup: make(map[int]int),
+	}
 }
 
 // NewBst returns a new Bst
@@ -21,6 +29,7 @@ func NewBstWithRoot(key int, value interface{}) *Bst {
 	return &Bst{
 		newNode(nil, key, value),
 		1,
+		nil,
 		nil,
 	}
 }
@@ -74,7 +83,6 @@ func (b *Bst) String() string {
 	q := NewOrderedList(cmp)
 	b.inLevels(b.r, 1, q)
 	return q.String()
-
 }
 
 // Len returns the number of elements in the tree
@@ -141,6 +149,17 @@ func (b *Bst) search(n *node, key int) *node {
 
 // Insert foo
 func (b *Bst) Insert(key int, value interface{}) bool {
+
+	if b.dup != nil {
+		if _, ok := b.dup[key]; !ok {
+			b.dup[key] = 1
+		} else {
+			b.dup[key]++
+			b.len++
+			return true
+		}
+	}
+
 	n := newNode(nil, key, value)
 	if b.r == nil {
 		b.r = n
@@ -156,10 +175,10 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 }
 
 func (b *Bst) insert(parent, node *node) bool {
-	// no duplicates
-	// if parent.k == node.k {
-	// 	return false
-	// }
+	//no duplicate in the tree
+	if parent.k == node.k {
+		return false
+	}
 	parent.h++
 	if node.k > parent.k {
 		if parent.r == nil {
@@ -288,6 +307,13 @@ func (b *Bst) Delete(key int) {
 		return
 	}
 	b.len--
+	if b.dup != nil {
+		b.dup[key]--
+		if b.dup[key] > 0 {
+			// there's still duplicate
+			return
+		}
+	}
 
 	// 2 children => after swapping with predecessor, there is 1 or 0 child
 	if n.l != nil && n.r != nil {
