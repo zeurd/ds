@@ -9,13 +9,17 @@ type BinarySearchTree interface {
 	Predecessor(int) interface{}
 	Min() interface{}
 	Max() interface{}
+	Len() int
+	Height() int
+	IsValid() bool
+	Slice() []interface{}
 }
 
 // NewBinarySearchTree returns a new BST
 // duplicate = true to allow duplicate keys
 // kf, the key function to evaluate the key if intend to use Push(x) and not Insert(k,x)
 func NewBinarySearchTree(duplicate bool, kf func(x interface{}) int) BinarySearchTree {
-	if duplicate {
+	if !duplicate {
 		return newBst(duplicate, kf)
 	}
 	return nil

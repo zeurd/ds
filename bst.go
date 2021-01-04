@@ -4,45 +4,21 @@ import (
 	"fmt"
 )
 
-// Bst is a balanced binary search tree
-type Bst struct {
+// bst is a balanced binary search tree
+type bst struct {
 	r   *node //root node
 	len int
 	kf  func(interface{}) int
-	dup map[int]int
 }
 
-func newBst(dup bool, kf func(interface{}) int) *Bst {
-	return &Bst{
+func newBst(dup bool, kf func(interface{}) int) *bst {
+	return &bst{
 		kf:  kf,
-		dup: make(map[int]int),
-	}
-}
-
-// NewBst returns a new Bst
-func NewBst() *Bst {
-	return &Bst{}
-}
-
-// NewBstWithRoot foo
-func NewBstWithRoot(key int, value interface{}) *Bst {
-	return &Bst{
-		newNode(nil, key, value),
-		1,
-		nil,
-		nil,
-	}
-}
-
-// NewBstWithKeyFunc foo
-func NewBstWithKeyFunc(kf func(interface{}) int) *Bst {
-	return &Bst{
-		kf: kf,
 	}
 }
 
 // Push inserts in tree, using kf() to compute the key
-func (b *Bst) Push(x interface{}) {
+func (b *bst) Push(x interface{}) {
 	b.Insert(b.kf(x), x)
 }
 
@@ -78,7 +54,7 @@ type nL struct {
 	l int
 }
 
-func (b *Bst) String() string {
+func (b *bst) String() string {
 	cmp := func(x interface{}) int { return x.(nL).l }
 	q := NewOrderedList(cmp)
 	b.inLevels(b.r, 1, q)
@@ -86,17 +62,17 @@ func (b *Bst) String() string {
 }
 
 // Len returns the number of elements in the tree
-func (b *Bst) Len() int {
+func (b *bst) Len() int {
 	return b.len
 }
 
 // Root returns the root value of the tree
-func (b *Bst) Root() interface{} {
+func (b *bst) Root() interface{} {
 	return b.r.v
 }
 
 // Height returns the height of the tree
-func (b *Bst) Height() int {
+func (b *bst) Height() int {
 	if b.r == nil {
 		return 0
 	}
@@ -104,11 +80,11 @@ func (b *Bst) Height() int {
 }
 
 // IsValid returns true if it b is a valid search tree
-func (b *Bst) IsValid() bool {
+func (b *bst) IsValid() bool {
 	return b.valid(b.r)
 }
 
-func (b *Bst) valid(n *node) bool {
+func (b *bst) valid(n *node) bool {
 	if n == nil {
 		return true
 	}
@@ -117,7 +93,7 @@ func (b *Bst) valid(n *node) bool {
 	return b.avlProperty(l, r) && b.valid(l) && b.valid(r)
 }
 
-func (b *Bst) avlProperty(l, r *node) bool {
+func (b *bst) avlProperty(l, r *node) bool {
 	lh := b.height(l)
 	rh := b.height(r)
 	diff := lh - rh
@@ -128,11 +104,11 @@ func (b *Bst) avlProperty(l, r *node) bool {
 }
 
 // Search foo
-func (b *Bst) Search(key int) interface{} {
+func (b *bst) Search(key int) interface{} {
 	return b.search(b.r, key).v
 }
 
-func (b *Bst) search(n *node, key int) *node {
+func (b *bst) search(n *node, key int) *node {
 	if n == nil {
 		return nil
 	}
@@ -148,18 +124,7 @@ func (b *Bst) search(n *node, key int) *node {
 }
 
 // Insert foo
-func (b *Bst) Insert(key int, value interface{}) bool {
-
-	if b.dup != nil {
-		if _, ok := b.dup[key]; !ok {
-			b.dup[key] = 1
-		} else {
-			b.dup[key]++
-			b.len++
-			return true
-		}
-	}
-
+func (b *bst) Insert(key int, value interface{}) bool {
 	n := newNode(nil, key, value)
 	if b.r == nil {
 		b.r = n
@@ -174,7 +139,7 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 	return done
 }
 
-func (b *Bst) insert(parent, node *node) bool {
+func (b *bst) insert(parent, node *node) bool {
 	//no duplicate in the tree
 	if parent.k == node.k {
 		return false
@@ -199,11 +164,11 @@ func (b *Bst) insert(parent, node *node) bool {
 }
 
 // Min returns the min element in the tree
-func (b *Bst) Min() interface{} {
+func (b *bst) Min() interface{} {
 	return b.min(b.r).v
 }
 
-func (b *Bst) min(n *node) *node {
+func (b *bst) min(n *node) *node {
 	if n.l == nil {
 		return n
 	}
@@ -211,11 +176,11 @@ func (b *Bst) min(n *node) *node {
 }
 
 // Max returns the max element in the tree
-func (b *Bst) Max() interface{} {
+func (b *bst) Max() interface{} {
 	return b.max(b.r).v
 }
 
-func (b *Bst) max(n *node) *node {
+func (b *bst) max(n *node) *node {
 	if n.r == nil {
 		return n
 	}
@@ -223,14 +188,14 @@ func (b *Bst) max(n *node) *node {
 }
 
 // Slice returns a sorted slice
-func (b *Bst) Slice() []interface{} {
+func (b *bst) Slice() []interface{} {
 	s := make([]interface{}, 0)
 	b.inOrder(b.r, &s)
 	return s
 }
 
 // in order traversal: right - root - left
-func (b *Bst) inOrder(n *node, s *[]interface{}) {
+func (b *bst) inOrder(n *node, s *[]interface{}) {
 	if n == nil {
 		return
 	}
@@ -240,7 +205,7 @@ func (b *Bst) inOrder(n *node, s *[]interface{}) {
 }
 
 // in levels traversal
-func (b *Bst) inLevels(n *node, level int, q *OrderedList) {
+func (b *bst) inLevels(n *node, level int, q *OrderedList) {
 	if n == nil {
 		return
 	}
@@ -250,7 +215,7 @@ func (b *Bst) inLevels(n *node, level int, q *OrderedList) {
 	b.inLevels(n.r, level*2+1, q)
 }
 
-func (b *Bst) deleteChildLessNode(n *node) {
+func (b *bst) deleteChildLessNode(n *node) {
 	p := n.p
 	//deleting childless root
 	if p == nil {
@@ -269,7 +234,7 @@ func (b *Bst) deleteChildLessNode(n *node) {
 }
 
 // for n with one single child
-func (b *Bst) spliceOut(n *node) {
+func (b *bst) spliceOut(n *node) {
 	if n.l == nil && n.r == nil {
 		panic("splice out with no child")
 	}
@@ -301,19 +266,12 @@ func (b *Bst) spliceOut(n *node) {
 }
 
 // Delete foo
-func (b *Bst) Delete(key int) {
+func (b *bst) Delete(key int) {
 	n := b.search(b.r, key)
 	if n == nil {
 		return
 	}
 	b.len--
-	if b.dup != nil {
-		b.dup[key]--
-		if b.dup[key] > 0 {
-			// there's still duplicate
-			return
-		}
-	}
 
 	// 2 children => after swapping with predecessor, there is 1 or 0 child
 	if n.l != nil && n.r != nil {
@@ -332,7 +290,7 @@ func (b *Bst) Delete(key int) {
 	}
 }
 
-func (b *Bst) swap(n1, n2 *node) (*node, *node) {
+func (b *bst) swap(n1, n2 *node) (*node, *node) {
 	k1 := n1.k
 	k2 := n2.k
 	v1 := n1.v
@@ -349,13 +307,13 @@ func (b *Bst) swap(n1, n2 *node) (*node, *node) {
 }
 
 // Predecessor returns the predecessor of the given key
-func (b *Bst) Predecessor(key int) interface{} {
+func (b *bst) Predecessor(key int) interface{} {
 	n := b.search(b.r, key)
 	p := b.predecessor(n)
 	return p.v
 }
 
-func (b *Bst) predecessor(n *node) *node {
+func (b *bst) predecessor(n *node) *node {
 	// case 1: left non-empty, return max key in left sub-tree
 	if n.l != nil {
 		return b.max(n.l) //follow right side in left subtree
@@ -369,14 +327,14 @@ func (b *Bst) predecessor(n *node) *node {
 }
 
 // if left subtree is bigger, returns a positive number; negative if right is bigger
-func (b *Bst) getBalance(n *node) int {
+func (b *bst) getBalance(n *node) int {
 	if n == nil {
 		return 0
 	}
 	return b.height(n.l) - b.height(n.r)
 }
 
-func (b *Bst) rebalance(n *node) {
+func (b *bst) rebalance(n *node) {
 	//get balance at the parent of the new node
 	balance := b.getBalance(n)
 
@@ -404,7 +362,7 @@ func (b *Bst) rebalance(n *node) {
 	}
 }
 
-func (b *Bst) adjustHeight(n *node) {
+func (b *bst) adjustHeight(n *node) {
 	if n == nil {
 		return
 	}
@@ -416,14 +374,14 @@ func (b *Bst) adjustHeight(n *node) {
 		n.h = h2 + 1
 	}
 }
-func (b *Bst) height(n *node) int {
+func (b *bst) height(n *node) int {
 	if n == nil {
 		return 0
 	}
 	return n.h
 }
 
-func (b *Bst) setParent(parent, y *node) {
+func (b *bst) setParent(parent, y *node) {
 	y.p = parent
 	if parent == nil {
 		b.r = y
@@ -436,7 +394,7 @@ func (b *Bst) setParent(parent, y *node) {
 	}
 }
 
-func (b *Bst) rotateLeft(x *node) {
+func (b *bst) rotateLeft(x *node) {
 	// 0. y is right child of p (right is the heavier side)
 	y := x.r
 	// 0. z is left child of y, that will need to be rewired
@@ -459,7 +417,7 @@ func (b *Bst) rotateLeft(x *node) {
 	b.adjustHeight(parent)
 }
 
-func (b *Bst) rotateRight(x *node) {
+func (b *bst) rotateRight(x *node) {
 	//0.
 	y := x.l
 	z := y.r

@@ -8,7 +8,7 @@ import (
 )
 
 func TestBstBasic(t *testing.T) {
-	b := ds.NewBst()
+	b := ds.NewBinarySearchTree(false, nil)
 	b.Insert(3, "three")
 	b.Insert(5, "five")
 	b.Insert(2, "two")
@@ -61,7 +61,7 @@ func TestBstBasic(t *testing.T) {
 }
 
 func TestBstPredecessor(t *testing.T) {
-	b := ds.NewBst()
+	b := ds.NewBinarySearchTree(false, nil)
 	for i := 0; i <= 10; i++ {
 		b.Insert(i, i)
 	}
@@ -81,7 +81,7 @@ func TestBstPredecessor(t *testing.T) {
 }
 
 func TestBstDelete(t *testing.T) {
-	b := ds.NewBst()
+	b := ds.NewBinarySearchTree(false, nil)
 	max := 1000
 	xs := unorderedInts(max)
 	for _, x := range xs {
@@ -103,7 +103,7 @@ func TestBstDelete(t *testing.T) {
 }
 
 func TestBstSearch(t *testing.T) {
-	b := ds.NewBst()
+	b := ds.NewBinarySearchTree(false, nil)
 	max := 1000
 	xs := unorderedInts(max)
 	for _, x := range xs {
@@ -118,7 +118,7 @@ func TestBstSearch(t *testing.T) {
 }
 
 func TestBstRightLeft(t *testing.T) {
-	b := ds.NewBst()
+	b := ds.NewBinarySearchTree(false, nil)
 	xs := []int{0, 5, 1}
 	for _, x := range xs {
 		b.Insert(x, x)
@@ -135,7 +135,7 @@ func TestBstRightLeft(t *testing.T) {
 }
 
 func TestBstLeftRight(t *testing.T) {
-	b := ds.NewBst()
+	b := ds.NewBinarySearchTree(false, nil)
 	xs := []int{5, 0, 1}
 	for _, x := range xs {
 		b.Insert(x, x)
@@ -152,7 +152,7 @@ func TestBstLeftRight(t *testing.T) {
 }
 
 func TestBstInsert(t *testing.T) {
-	b := ds.NewBst()
+	b := ds.NewBinarySearchTree(false, nil)
 	n := 3000
 	xs := unorderedInts(n)
 	expectedMin := n + 1
@@ -187,7 +187,7 @@ func TestBstEdges(t *testing.T) {
 	}
 	expectedMin := 1000000
 	expectedMax := -1000000
-	b := ds.NewBstWithKeyFunc(kf)
+	b := ds.NewBinarySearchTree(false, kf)
 	for edge := range g.Edges() {
 		e := edge.(ds.Edge)
 		x := e.Weight()
