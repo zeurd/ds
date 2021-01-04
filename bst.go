@@ -157,9 +157,9 @@ func (b *Bst) Insert(key int, value interface{}) bool {
 
 func (b *Bst) insert(parent, node *node) bool {
 	// no duplicates
-	if parent.k == node.k {
-		return false
-	}
+	// if parent.k == node.k {
+	// 	return false
+	// }
 	parent.h++
 	if node.k > parent.k {
 		if parent.r == nil {
