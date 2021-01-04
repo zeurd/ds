@@ -75,6 +75,9 @@ func (b *Bst) Root() interface{} {
 
 // Height returns the height of the tree
 func (b *Bst) Height() int {
+	if b.r == nil {
+		return 0
+	}
 	return b.r.h
 }
 
@@ -234,7 +237,6 @@ func (b *Bst) deleteChildLessNode(n *node) {
 
 // for n with one single child
 func (b *Bst) spliceOut(n *node) {
-	fmt.Printf("splice out: %d\n", n.k)
 	if n.l == nil && n.r == nil {
 		panic("splice out with no child")
 	}
@@ -254,7 +256,6 @@ func (b *Bst) spliceOut(n *node) {
 	child.p = parent
 	if parent == nil {
 		b.r = child
-		fmt.Printf("after root splice out: %v\n", b)
 		return
 	}
 
@@ -264,7 +265,6 @@ func (b *Bst) spliceOut(n *node) {
 	} else {
 		parent.r = child
 	}
-	fmt.Printf("after splice out: %v\n", b)
 }
 
 // Delete foo
@@ -278,24 +278,27 @@ func (b *Bst) Delete(key int) {
 	// 0 child
 	if n.l == nil && n.r == nil {
 		b.deleteChildLessNode(n)
-		return
-	}
-	// 2 children
-	if n.l != nil && n.r != nil {
+	} else if n.l != nil && n.r != nil {
+		// 2 children
 		m := b.predecessor(n)
 		n, m = b.swap(n, m) //pred is now n
 		if n.l == nil {
+			// 0 child after swap
 			b.deleteChildLessNode(n) //not only no right child but also no left
-			return
+		} else {
+			// 1 child after swap
+			b.spliceOut(n)
 		}
+	} else {
+		// 1 child
+		b.spliceOut(n)
 	}
-	// 1 child
-	b.spliceOut(n)
-
+	if n.p != nil {
+		b.rebalance(n.p)
+	}
 }
 
 func (b *Bst) swap(n1, n2 *node) (*node, *node) {
-	fmt.Printf("swap %v and %v\n", n1, n2)
 	k1 := n1.k
 	k2 := n2.k
 	v1 := n1.v
@@ -306,7 +309,6 @@ func (b *Bst) swap(n1, n2 *node) (*node, *node) {
 
 	n2.k = k1
 	n2.v = v1
-	fmt.Printf("in swap: %v and %v\n", n1, n2)
 
 	return n2, n1
 

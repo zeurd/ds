@@ -1,7 +1,6 @@
 package ds_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/zeurd/ds"
@@ -82,22 +81,22 @@ func TestBstPredecessor(t *testing.T) {
 
 func TestBstDelete(t *testing.T) {
 	b := ds.NewBst()
-	max := 10
+	max := 1000
 	xs := unorderedInts(max)
 	for _, x := range xs {
 		b.Insert(x, x)
 	}
-	fmt.Println(b)
 	for i, x := range xs {
-		fmt.Println(x)
 		b.Delete(x)
-		fmt.Println(b)
 		if !b.IsValid() {
 			t.Errorf("BST not valid: %v", b)
 		}
 		if b.Len() != max-i-1 {
 			t.Errorf("expected length: %d, actual: %d", max-i-1, b.Len())
 		}
+	}
+	if b.Height() != 0 {
+		t.Errorf("not all elements in tree deleted")
 	}
 }
 
