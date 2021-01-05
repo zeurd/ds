@@ -2,7 +2,6 @@ package ds
 
 import (
 	"fmt"
-	"time"
 )
 
 // graph representation as map[int][int]int, for map[from]map[to]weight
@@ -209,79 +208,17 @@ func (g graph) MST() (Graph, int) {
 
 // Clusters implement the Kruskal algo to compute Max-Spacing k-clusters and returns the spacing
 func (g graph) Clusters(k int) int {
-	return g.clustersB(k)
-	closest := NewOrderedList(func(e interface{}) int { return e.(Edge).Weight() })
-	clusters := NewClusters()
-	// get the closest node to each others, and add each in its own clusters
-
-	now := time.Now()
-	for v, edges := range g {
-		for w, c := range edges {
-			closest.Add(Edge{v, w, c})
-			// clusters.Add(v)
-			// clusters.Add(w)
-		}
-	}
-	now2 := time.Now()
-	fmt.Printf("add  in order took: %v (%d elements)\n", now2.Sub(now), closest.Len())
-	for v, edges := range g {
-		for w := range edges {
-			//closest.Add(Edge{v, w, c})
-			clusters.Add(v)
-			clusters.Add(w)
-		}
-	}
-	now3 := time.Now()
-	fmt.Printf("add in clusters: %v\n", now3.Sub(now2))
-	// merge the clusters of the 2 closest nodes until k clusters
-	var last int
-	closestS := closest.Slice()
-	for i, e := range closestS {
-		edge := e.(Edge)
-		clusters.Union(edge.From(), edge.To())
-		if clusters.Count() == k {
-			last = i
-			break
-		}
-		if i < 10 {
-			fmt.Printf("min: %v\n", edge)
-		}
-	}
-	fmt.Printf("after first loop: %d elements in closest (clusters: %d)\n", closest.Len()-last, clusters.Count())
-	// find the next closest pair that is separated
-	for i := last + 1; i < len(closestS); i++ {
-		next := closest.Get(i).(Edge)
-		if !clusters.Connected(next.From(), next.To()) {
-			fmt.Printf("after second loop: %d elements in closest\n", closest.Len()-i)
-			return next.Weight()
-		}
-	}
-	return 0
-}
-
-func (g graph) clustersB(k int) int {
 	closeBst := NewBinarySearchTree(true, func(x interface{}) int { return x.(Edge).Weight() })
 	clusters := NewClusters()
 
-	now := time.Now()
 	for v, edges := range g {
 		for w, c := range edges {
 			closeBst.Push(Edge{v, w, c})
-		}
-	}
-	now2 := time.Now()
-	fmt.Printf("add  in order took: %v (%d elements)\n", now2.Sub(now), closeBst.Len())
-	for v, edges := range g {
-		for w := range edges {
-			//closest.Add(Edge{v, w, c})
 			clusters.Add(v)
 			clusters.Add(w)
 		}
 	}
-	now3 := time.Now()
-	fmt.Printf("add in clusters: %v\n", now3.Sub(now2))
 	// merge the clusters of the 2 closest nodes until k clusters
-	i := 0
 	for closeBst.Len() > 0 {
 		key, e := closeBst.MinK()
 		closeBst.DeleteKV(key, e)
@@ -290,12 +227,7 @@ func (g graph) clustersB(k int) int {
 		if clusters.Count() == k {
 			break
 		}
-		if i < 10 {
-			fmt.Printf("min: %v\n", edge)
-			i++
-		}
 	}
-	fmt.Printf("after first loop: %d elements in closest (clusters: %d)\n", closeBst.Len(), clusters.Count())
 
 	// find the next closest pair that is separated
 	for closeBst.Len() > 0 {
@@ -303,7 +235,6 @@ func (g graph) clustersB(k int) int {
 		closeBst.DeleteKV(key, e)
 		edge := e.(Edge)
 		if !clusters.Connected(edge.From(), edge.To()) {
-			fmt.Printf("after second loop: %d elements in closest\n", closeBst.Len())
 			return edge.Weight()
 		}
 	}
