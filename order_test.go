@@ -107,10 +107,10 @@ func TestOrderAdd(t *testing.T) {
 }
 
 func TestOrderDelete(t *testing.T) {
-	l := 30000
-	n := unorderedInts(l)
-	o := ds.NewOrderFromSlice(n)
-	for i, x := range n {
+	l := 10
+	xs := unorderedInts(l)
+	o := ds.NewOrderFromSlice(xs)
+	for i, x := range xs {
 		o.Delete(x)
 		if !o.IsValid() {
 			t.Errorf("Order not valid after deleting %d: %v\n", x, o)

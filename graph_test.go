@@ -37,7 +37,7 @@ func TestShortestPath(t *testing.T) {
 }
 
 func TestReadVE(t *testing.T) {
-	G, m, n, c := ds.ReadVE("testdata/ve_test", false)
+	G, m, n, c := ds.ReadVE("testdata/ve_10_40_-97121", false)
 	edges, cost := G.EdgesCost()
 	len := G.Len()
 	if len != m {
@@ -51,9 +51,9 @@ func TestReadVE(t *testing.T) {
 	}
 }
 func TestMST(t *testing.T) {
-	G, _, _, _ := ds.ReadVE("testdata/ve_test", true)
-	expectedCost := -10519
-	expectedEdges := 1
+	G, _, _, _ := ds.ReadVE("testdata/ve_10_40_-97121", true)
+	expectedCost := -97121
+	expectedEdges := 39
 	mst, cost := G.MST()
 	if cost != expectedCost {
 		t.Errorf("expectedCost: %d ; actual cost: %d\n", expectedCost, cost)
@@ -103,16 +103,13 @@ func TestGraphClusters(t *testing.T) {
 }
 
 func TestGraphClustering(t *testing.T) {
-	g, m, b := ds.ReadClustering("testdata/clustering_big") //32_18_30
-	if m != g.Len() {
-		t.Errorf("expected # vertices: %d ; actual : %d\n", m, g.Len())
-	}
-	if b != 14 {
+	g, _, b := ds.ReadClustering("testdata/clustering_32_18_30") //32_18_30
+	if b != 18 {
 		t.Errorf("expected # bits %d ; actual: %d\n", 14, b)
 	}
 	//largest value of ksuch that there is a k-clustering with spacing at least 3
 	k := g.ClustersDist(3)
-	if k != 21 {
+	if k != 30 {
 		t.Errorf("wrong k: %d\n", k)
 	}
 

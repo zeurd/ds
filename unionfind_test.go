@@ -1,7 +1,6 @@
 package ds_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/zeurd/ds"
@@ -19,7 +18,6 @@ func TestUF(t *testing.T) {
 	s1 := u.Find(1)
 	s2 := u.Find(2)
 	s3 := u.Find(3)
-	fmt.Println("after")
 	u.Find(1)
 
 	if s1 != s2 {

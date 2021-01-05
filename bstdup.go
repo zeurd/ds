@@ -37,13 +37,13 @@ func (b *bstDup) Push(x interface{}) {
 }
 
 func (b *bstDup) Delete(key int) {
-	_, ok := b.dup[key]
+	d, ok := b.dup[key]
 	if !ok {
 		return
 	}
 	b.len--
-	b.dup[key].Pop()
-	if len(b.dup[key]) > 0 {
+	d.Pop()
+	if len(d) > 0 {
 		return
 	}
 	b.bst.Delete(key)
@@ -55,9 +55,9 @@ func (b *bstDup) DeleteKV(key int, x interface{}) {
 		return
 	}
 	b.len--
-	b.dup[key].Delete(x)
+	d.Delete(x)
 	b.bst.replaceValue(key, d.Peek())
-	if len(b.dup[key]) > 0 {
+	if len(d) > 0 {
 		return
 	}
 	b.bst.Delete(key)

@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // ReadGraph reads a txt file containing Graph data in format:
@@ -159,8 +158,6 @@ func ReadClustering(file string) (Graph, int, int) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	start := time.Now()
-	fmt.Println("start adding edges...")
 	for v := range vert {
 		at1 := atDistance(v, bits)
 		for _, vat1 := range at1 {
@@ -174,18 +171,9 @@ func ReadClustering(file string) (Graph, int, int) {
 				if ok {
 					g.PutEdge(vert[v], v2, 2)
 				}
-				at3 := atDistance(vat2, bits)
-				for _, vat3 := range at3 {
-					v3, ok := vert[vat3]
-					if ok {
-						g.PutEdge(vert[v], v3, 3)
-					}
-				}
 			}
 		}
 	}
-	end := time.Now()
-	fmt.Printf("done adding vert after: %v\n", end.Sub(start))
 	return g, m, bits
 }
 

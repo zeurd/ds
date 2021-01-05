@@ -3,7 +3,7 @@ package ds
 import "sort"
 
 // Order is an slice of sorted int (increasing order)
-// /!\ Add() in O(n) !!!
+// /!\ Add in O(n) !!!
 type Order struct {
 	o []int
 }
@@ -22,8 +22,10 @@ func NewOrderFromInts(n ...int) *Order {
 
 // NewOrderFromSlice returns an order with the element in the slice
 func NewOrderFromSlice(n []int) *Order {
-	sort.Ints(n)
-	return &Order{n}
+	sorted := make([]int, len(n))
+	copy(sorted, n)
+	sort.Ints(sorted)
+	return &Order{sorted}
 }
 
 // IsEmpty returns true if order is empty

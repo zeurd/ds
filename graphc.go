@@ -1,9 +1,5 @@
 package ds
 
-import (
-	"fmt"
-)
-
 // graph representation as map[int][int]int, for map[from]map[to]weight
 type graph map[int]map[int]int
 
@@ -242,20 +238,20 @@ func (g graph) Clusters(k int) int {
 }
 
 func (g graph) ClustersDist(d int) int {
-	closest := NewOrderedList(func(e interface{}) int { return e.(Edge).Weight() })
+	closest := NewBinarySearchTree(true, func(x interface{}) int { return x.(Edge).Weight() })
 	clusters := NewClusters()
 	// get the closest node to each others, and add each in its own clusters
 	for v, edges := range g {
 		for w, c := range edges {
-			closest.Add(Edge{v, w, c})
+			closest.Push(Edge{v, w, c})
 			clusters.Add(v)
 			clusters.Add(w)
 		}
 	}
-	fmt.Printf("closest size: %d\n", closest.Len())
 	// merge the clusters of the 2 closest nodes until k clusters
-	closestS := closest.Slice()
-	for _, e := range closestS {
+	for closest.Len() > 0 {
+		key, e := closest.MinK()
+		closest.DeleteKV(key, e)
 
 		edge := e.(Edge)
 		if clusters.Connected(edge.From(), edge.To()) {

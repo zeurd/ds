@@ -1,7 +1,6 @@
 package ds_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/zeurd/ds"
@@ -95,7 +94,6 @@ func TestBstDelete(t *testing.T) {
 		if b.Len() != max-i-1 {
 			t.Errorf("expected length: %d, actual: %d", max-i-1, b.Len())
 		}
-		fmt.Println(b.Height())
 	}
 	if b.Height() != 0 {
 		t.Errorf("not all elements in tree deleted")
@@ -244,14 +242,14 @@ func TestBstDuplicates(t *testing.T) {
 			t.Errorf("expected len: %d but found %d", (i+1)*2, b.Len())
 		}
 	}
-	l := n*2
+	l := n * 2
 	// delete all x once
 	for i, x := range xs {
 		b.Delete(x)
 		if !b.IsValid() {
 			t.Errorf("BST not valid: %v", b)
 		}
-		if b.Len() != l -i -1 {
+		if b.Len() != l-i-1 {
 			t.Errorf("expected len: %d but found %d", n-i-1, b.Len())
 		}
 	}
@@ -261,7 +259,7 @@ func TestBstDuplicates(t *testing.T) {
 		if !b.IsValid() {
 			t.Errorf("BST not valid: %v", b)
 		}
-		if b.Len() != n -i -1 {
+		if b.Len() != n-i-1 {
 			t.Errorf("expected len: %d but found %d", n-i-1, b.Len())
 		}
 	}
