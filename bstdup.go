@@ -2,7 +2,7 @@ package ds
 
 // bstD is a BST that can contain duplicate key
 type bstDup struct {
-	dup map[int]int //duplicates
+	dup map[int]Set //duplicates
 	bst *bst
 	len int
 }
@@ -10,7 +10,7 @@ type bstDup struct {
 //newBstDup
 func newBstDup(kf func(interface{}) int) *bstDup {
 	return &bstDup{
-		make(map[int]int),
+		make(map[int]Set),
 		newBst(kf),
 		0,
 	}
@@ -23,10 +23,11 @@ func (b *bstDup) Search(key int) interface{} {
 func (b *bstDup) Insert(key int, x interface{}) bool {
 	b.len++
 	if _, ok := b.dup[key]; ok {
-		b.dup[key]++
+		b.dup[key].Add(x)
 		return true
 	}
-	b.dup[key] = 1
+	b.dup[key] = NewSet()
+	b.dup[key].Add(x)
 	return b.bst.Insert(key, x)
 }
 
@@ -36,16 +37,28 @@ func (b *bstDup) Push(x interface{}) {
 }
 
 func (b *bstDup) Delete(key int) {
+	_, ok := b.dup[key]
+	if !ok {
+		return
+	}
+	b.len--
+	b.dup[key].Pop()
+	if len(b.dup[key]) > 0 {
+		return
+	}
+	b.bst.Delete(key)
+}
+
+func (b *bstDup) DeleteKV(key int, x interface{}) {
 	d, ok := b.dup[key]
 	if !ok {
 		return
 	}
 	b.len--
-	if d > 0 {
-		b.dup[key]--
-	}
-	if d < 0 {
-		panic(d)
+	b.dup[key].Delete(x)
+	b.bst.replaceValue(key, d.Peek())
+	if len(b.dup[key]) > 0 {
+		return
 	}
 	b.bst.Delete(key)
 }

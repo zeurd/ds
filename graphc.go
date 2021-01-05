@@ -243,8 +243,11 @@ func (g graph) Clusters(k int) int {
 			last = i
 			break
 		}
+		if i < 10 {
+			fmt.Printf("min: %v\n", edge)
+		}
 	}
-	fmt.Printf("after first loop: %d elements in closest\n", closest.Len()-last)
+	fmt.Printf("after first loop: %d elements in closest (clusters: %d)\n", closest.Len()-last, clusters.Count())
 	// find the next closest pair that is separated
 	for i := last + 1; i < len(closestS); i++ {
 		next := closest.Get(i).(Edge)
@@ -278,22 +281,26 @@ func (g graph) clustersB(k int) int {
 	now3 := time.Now()
 	fmt.Printf("add in clusters: %v\n", now3.Sub(now2))
 	// merge the clusters of the 2 closest nodes until k clusters
-
+	i := 0
 	for closeBst.Len() > 0 {
-		k, e := closeBst.MinK()
-		closeBst.Delete(k)
+		key, e := closeBst.MinK()
+		closeBst.DeleteKV(key, e)
 		edge := e.(Edge)
 		clusters.Union(edge.From(), edge.To())
 		if clusters.Count() == k {
 			break
 		}
+		if i < 10 {
+			fmt.Printf("min: %v\n", edge)
+			i++
+		}
 	}
-	fmt.Printf("after first loop: %d elements in closest\n", closeBst.Len())
+	fmt.Printf("after first loop: %d elements in closest (clusters: %d)\n", closeBst.Len(), clusters.Count())
 
 	// find the next closest pair that is separated
 	for closeBst.Len() > 0 {
-		k, e := closeBst.MinK()
-		closeBst.Delete(k)
+		key, e := closeBst.MinK()
+		closeBst.DeleteKV(key, e)
 		edge := e.(Edge)
 		if !clusters.Connected(edge.From(), edge.To()) {
 			fmt.Printf("after second loop: %d elements in closest\n", closeBst.Len())

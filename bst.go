@@ -300,6 +300,10 @@ func (b *bst) Delete(key int) {
 	}
 }
 
+func (b *bst) DeleteKV(key int, x interface{}) {
+	panic("uniomplemented")
+}
+
 func (b *bst) swap(n1, n2 *node) (*node, *node) {
 	k1 := n1.k
 	k2 := n2.k
@@ -447,4 +451,9 @@ func (b *bst) rotateRight(x *node) {
 	b.adjustHeight(x)
 	b.adjustHeight(y)
 	b.adjustHeight(parent)
+}
+
+func(b *bst) replaceValue(k int, v interface{}) {
+	n := b.search(b.r, k)
+	n.v = v
 }

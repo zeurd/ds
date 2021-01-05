@@ -6,6 +6,7 @@ type BinarySearchTree interface {
 	Insert(int, interface{}) bool
 	Push(interface{})
 	Delete(int)
+	DeleteKV(int, interface{})
 	Predecessor(int) interface{}
 	Min() interface{}
 	Max() interface{}
