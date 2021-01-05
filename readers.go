@@ -202,3 +202,40 @@ func atDistance(s string, bits int) []string {
 	//panic(ad)
 	return ad
 }
+
+// ReadHuffman reads a text file in format
+// # symbols
+// weight symbol 1
+// weight symbol 2
+// ...
+// and returns a ordered list of symbol 
+func ReadHuffman(file string) (int, map[interface{}]int) {
+	f, err := os.Open(file)
+	if err != nil {
+		fmt.Println(err)
+		return -1, nil
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	scan := bufio.NewScanner(f)
+	firstLine := true
+	weights := make(map[interface{}]int)
+	i := 0
+	count := 0
+	for scan.Scan() {
+		line := scan.Text()
+		n, _ := strconv.Atoi(line)
+		if firstLine {
+			firstLine = false
+			count = n
+			continue
+		}
+		weights[i] = n
+		i++
+	}
+	return count, weights
+}
