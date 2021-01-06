@@ -31,10 +31,36 @@ func NewHuffmanTree(weights map[rune]int) *HuffmanTree {
 	return h.build(b)
 }
 
+// Decode foo
+func(h *HuffmanTree) Decode() {}
+
+//Encoder foo
+func Encoder(s string) *HuffmanTree {
+	m := make(map[rune]int)
+	for _, r := range s {
+		if _, ok := m[r]; !ok {
+			m[r] = 1
+		} else {
+			m[r]++
+		}
+	}
+	return NewHuffmanTree(m)
+}
+
+// Encode foo
+func (*HuffmanTree) Encode(s string) {
+	for _, r := range s {
+		fmt.Println(r)
+	}
+}
+
+
+func (*HuffmanTree) bits() {}
+
 // Map returns a map of characters and their binary code
-func (h *HuffmanTree) Map() map[rune]string {
-	s := make(map[rune]string)
-	h.inOrder(h.root, "", s)
+func (h *HuffmanTree) Map() map[rune][]uint8 {
+	s := make(map[rune][]uint8)
+	h.inOrder(h.root, []uint8{}, s)
 	return s
 }
 
@@ -42,16 +68,22 @@ func (h *HuffmanTree) String() string {
 	return fmt.Sprintf("%v", h.Map())
 }
 
-func (h *HuffmanTree) inOrder(n *hnode, code string, s map[rune]string) {
+func (h *HuffmanTree) inOrder(n *hnode, code []uint8, s map[rune][]uint8) {
 	if n == nil {
 		return
 	}
-	h.inOrder(n.z, code+"0", s)
+	c0 := make([]uint8, len(code)+1)
+	c1 := make([]uint8, len(code)+1)
+	copy(c0, code)
+	copy(c1, code)
+	c0[len(c0)-1] = 0
+	c1[len(c1)-1] = 1
+	h.inOrder(n.z, c0, s)
 	if n.v != nil {
 		c := n.v.(symbol).s.(rune)
 		s[c] = code
 	}
-	h.inOrder(n.o, code+"1", s)
+	h.inOrder(n.o, c1, s)
 }
 
 type symbol struct {

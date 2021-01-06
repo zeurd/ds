@@ -9,14 +9,17 @@ import (
 func TestNewHuffman(t *testing.T) {
 	weights := map[rune]int{'a': 60, 'b': 25, 'c': 10, 'd': 5}
 	h := ds.NewHuffmanTree(weights)
-	expected := map[rune]string{'a': "0", 'b': "10", 'c': "110", 'd': "111"}
+	expected := map[rune][]uint8{'a': {0}, 'b': {1, 0}, 'c': {1, 1, 0}, 'd': {1, 1, 1}}
 	actual := h.Map()
 	if len(expected) != len(actual) {
 		t.Errorf("actual: %v, expected: %v", actual, expected)
 	}
-	for k, v := range expected {
-		if v != actual[k] {
-			t.Errorf("actual: %v, expected: %v", actual, expected)
+	for k, actualbits := range expected {
+		for i, bit := range actualbits {
+			if bit != actual[k][i] {
+				t.Errorf("actual: %v, expected: %v", actual, expected)
+			}
+
 		}
 	}
 }
