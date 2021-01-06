@@ -36,31 +36,31 @@ func (b *bstDup) Push(x interface{}) {
 	b.Insert(k, x)
 }
 
-func (b *bstDup) Delete(key int) {
+func (b *bstDup) Delete(key int) bool {
 	d, ok := b.dup[key]
 	if !ok {
-		return
+		return false
 	}
 	b.len--
 	d.Pop()
 	if len(d) > 0 {
-		return
+		return true
 	}
-	b.bst.Delete(key)
+	return b.bst.Delete(key)
 }
 
-func (b *bstDup) DeleteKV(key int, x interface{}) {
+func (b *bstDup) DeleteKV(key int, x interface{}) bool {
 	d, ok := b.dup[key]
 	if !ok {
-		return
+		return false
 	}
 	b.len--
 	d.Delete(x)
 	b.bst.replaceValue(key, d.Peek())
 	if len(d) > 0 {
-		return
+		return false
 	}
-	b.bst.Delete(key)
+	return b.bst.Delete(key)
 }
 
 func (b *bstDup) Predecessor(key int) interface{} {
@@ -90,4 +90,8 @@ func (b *bstDup) IsValid() bool {
 }
 func (b *bstDup) Slice() []interface{} {
 	return b.Slice()
+}
+
+func (b *bstDup) String() string {
+	return b.bst.String()
 }

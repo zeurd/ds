@@ -5,8 +5,8 @@ type BinarySearchTree interface {
 	Search(int) interface{}
 	Insert(int, interface{}) bool
 	Push(interface{})
-	Delete(int)
-	DeleteKV(int, interface{})
+	Delete(int) bool
+	DeleteKV(int, interface{}) bool
 	Predecessor(int) interface{}
 	Min() interface{}
 	Max() interface{}
@@ -16,6 +16,7 @@ type BinarySearchTree interface {
 	Height() int
 	IsValid() bool
 	Slice() []interface{}
+	String() string
 }
 
 // NewBinarySearchTree returns a new BST

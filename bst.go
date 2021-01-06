@@ -13,7 +13,7 @@ type bst struct {
 
 func newBst(kf func(interface{}) int) *bst {
 	return &bst{
-		kf:  kf,
+		kf: kf,
 	}
 }
 
@@ -48,17 +48,8 @@ func (n *node) isLeaf() bool {
 	return n.r == nil && n.l == nil
 }
 
-type nL struct {
-	x interface{}
-	h int
-	l int
-}
-
 func (b *bst) String() string {
-	cmp := func(x interface{}) int { return x.(nL).l }
-	q := NewOrderedList(cmp)
-	b.inLevels(b.r, 1, q)
-	return q.String()
+	return fmt.Sprintf("%v", b.Slice())
 }
 
 // Len returns the number of elements in the tree
@@ -186,6 +177,7 @@ func (b *bst) max(n *node) *node {
 	}
 	return b.max(n.r)
 }
+
 // MinK returns the min element in the tree
 func (b *bst) MinK() (int, interface{}) {
 	m := b.min(b.r)
@@ -197,6 +189,7 @@ func (b *bst) MaxK() (int, interface{}) {
 	m := b.max(b.r)
 	return m.k, m.v
 }
+
 // Slice returns a sorted slice
 func (b *bst) Slice() []interface{} {
 	s := make([]interface{}, 0)
@@ -214,37 +207,26 @@ func (b *bst) inOrder(n *node, s *[]interface{}) {
 	b.inOrder(n.r, s)
 }
 
-// in levels traversal
-func (b *bst) inLevels(n *node, level int, q *OrderedList) {
-	if n == nil {
-		return
-	}
-	node := nL{n.v, n.h, level}
-	q.Add(node)
-	b.inLevels(n.l, level*2, q)
-	b.inLevels(n.r, level*2+1, q)
-}
-
-func (b *bst) deleteChildLessNode(n *node) {
+func (b *bst) deleteChildLessNode(n *node) bool {
 	p := n.p
 	//deleting childless root
 	if p == nil {
 		b.r = nil
-		return
+		return true
 	}
 	if p.r != nil && p.r.k == n.k {
 		p.r = nil
-		return
+		return true
 	}
 	if p.l != nil && p.l.k == n.k {
 		p.l = nil
-		return
+		return true
 	}
-	panic("did not delete childless node")
+	return false
 }
 
 // for n with one single child
-func (b *bst) spliceOut(n *node) {
+func (b *bst) spliceOut(n *node) bool {
 	if n.l == nil && n.r == nil {
 		panic("splice out with no child")
 	}
@@ -264,7 +246,7 @@ func (b *bst) spliceOut(n *node) {
 	child.p = parent
 	if parent == nil {
 		b.r = child
-		return
+		return true
 	}
 
 	nIsLeft := parent.l != nil && parent.l.k == n.k
@@ -273,13 +255,14 @@ func (b *bst) spliceOut(n *node) {
 	} else {
 		parent.r = child
 	}
+	return true
 }
 
 // Delete foo
-func (b *bst) Delete(key int) {
+func (b *bst) Delete(key int) bool {
 	n := b.search(b.r, key)
 	if n == nil {
-		return
+		return false
 	}
 	b.len--
 
@@ -288,19 +271,21 @@ func (b *bst) Delete(key int) {
 		m := b.predecessor(n)
 		n, m = b.swap(n, m)
 	}
+	var deleted bool
 	// 0 child
 	if n.l == nil && n.r == nil {
-		b.deleteChildLessNode(n)
+		deleted = b.deleteChildLessNode(n)
 	} else {
 		// 1 child
-		b.spliceOut(n)
+		deleted = b.spliceOut(n)
 	}
 	if n.p != nil {
 		b.rebalance(n.p)
 	}
+	return deleted
 }
 
-func (b *bst) DeleteKV(key int, x interface{}) {
+func (b *bst) DeleteKV(key int, x interface{}) bool {
 	panic("uniomplemented")
 }
 
@@ -453,7 +438,7 @@ func (b *bst) rotateRight(x *node) {
 	b.adjustHeight(parent)
 }
 
-func(b *bst) replaceValue(k int, v interface{}) {
+func (b *bst) replaceValue(k int, v interface{}) {
 	n := b.search(b.r, k)
 	n.v = v
 }
