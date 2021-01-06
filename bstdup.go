@@ -56,10 +56,11 @@ func (b *bstDup) DeleteKV(key int, x interface{}) bool {
 	}
 	b.len--
 	d.Delete(x)
-	b.bst.replaceValue(key, d.Peek())
 	if len(d) > 0 {
-		return false
+		b.bst.replaceValue(key, d.Peek())
+		return true
 	}
+	delete(b.dup, key)
 	return b.bst.Delete(key)
 }
 

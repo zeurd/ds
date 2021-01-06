@@ -197,7 +197,7 @@ func (b *bst) Slice() []interface{} {
 	return s
 }
 
-// in order traversal: right - root - left
+// in order traversal: left - root - right
 func (b *bst) inOrder(n *node, s *[]interface{}) {
 	if n == nil {
 		return

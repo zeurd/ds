@@ -209,7 +209,7 @@ func atDistance(s string, bits int) []string {
 // weight symbol 2
 // ...
 // and returns a ordered list of symbol 
-func ReadHuffman(file string) (int, map[interface{}]int) {
+func ReadHuffman(file string) (int, map[rune]int) {
 	f, err := os.Open(file)
 	if err != nil {
 		fmt.Println(err)
@@ -223,7 +223,7 @@ func ReadHuffman(file string) (int, map[interface{}]int) {
 
 	scan := bufio.NewScanner(f)
 	firstLine := true
-	weights := make(map[interface{}]int)
+	weights := make(map[rune]int)
 	i := 0
 	count := 0
 	for scan.Scan() {
@@ -234,7 +234,7 @@ func ReadHuffman(file string) (int, map[interface{}]int) {
 			count = n
 			continue
 		}
-		weights[i] = n
+		weights[rune(i)] = n
 		i++
 	}
 	return count, weights
