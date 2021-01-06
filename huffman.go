@@ -1,6 +1,9 @@
 package ds
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+)
 
 //HuffmanTree foo
 type HuffmanTree struct {
@@ -23,7 +26,7 @@ func newHnode(v interface{}) *hnode {
 
 // NewHuffmanTree creates a  huffman tree from map of characters to their count
 func NewHuffmanTree(weights map[rune]int) *HuffmanTree {
-	kf := func(x interface{}) int { return x.(symbol).w }
+	kf := func(x interface{}) int { return x.(*symbol).w }
 	b := NewBinarySearchTree(true, kf)
 	for k, v := range weights {
 		b.Push(newSymbol(k, v, false))
@@ -48,15 +51,18 @@ func Encoder(s string) *HuffmanTree {
 }
 
 //Decode foo
-func (h *HuffmanTree) Decode(bits []uint8) {
+func (h *HuffmanTree) Decode(bits []uint8) string {
+	var b bytes.Buffer
 	n := h.root
 	for _, bit := range bits {
 		n = h.next(n, bit)
 		if n.v != nil {
-			fmt.Println(n.v)
+			char := n.v.(*symbol).s.(rune)
+			b.WriteRune(char)
 			n = h.root
 		}
 	}
+	return b.String()
 }
 
 func (h *HuffmanTree) next(n *hnode, b uint8) *hnode {
@@ -103,7 +109,7 @@ func (h *HuffmanTree) inOrder(n *hnode, code []uint8, s map[rune][]uint8) {
 	c1[len(c1)-1] = 1
 	h.inOrder(n.z, c0, s)
 	if n.v != nil {
-		c := n.v.(symbol).s.(rune)
+		c := n.v.(*symbol).s.(rune)
 		s[c] = code
 	}
 	h.inOrder(n.o, c1, s)
@@ -115,8 +121,8 @@ type symbol struct {
 	meta bool        //meta is true if s is the result of a merge
 }
 
-func newSymbol(s interface{}, w int, meta bool) symbol {
-	return symbol{s, w, meta}
+func newSymbol(s interface{}, w int, meta bool) *symbol {
+	return &symbol{s, w, meta}
 }
 
 func (h *huffman) build(b BinarySearchTree) *HuffmanTree {
@@ -130,7 +136,7 @@ func (h *huffman) build(b BinarySearchTree) *HuffmanTree {
 
 func (h *huffman) tree(b BinarySearchTree) *HuffmanTree {
 	root := b.Min()
-	s := root.(symbol)
+	s := root.(*symbol)
 	var hroot *hnode
 	if s.meta {
 		hroot = s.s.(*hnode)
@@ -146,11 +152,11 @@ func (h *huffman) greedy(b BinarySearchTree) {
 	k2, low2 := b.MinK()
 	b.DeleteKV(k2, low2)
 
-	metaS := h.merge(low1.(symbol), low2.(symbol))
+	metaS := h.merge(low1.(*symbol), low2.(*symbol))
 	b.Push(metaS)
 }
 
-func (h *huffman) merge(s2, s1 symbol) symbol {
+func (h *huffman) merge(s2, s1 *symbol) *symbol {
 	n := newHnode(nil)
 	var l *hnode
 	if s1.meta {

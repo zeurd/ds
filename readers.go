@@ -2,6 +2,7 @@ package ds
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os"
 	"strconv"
@@ -208,7 +209,7 @@ func atDistance(s string, bits int) []string {
 // weight symbol 1
 // weight symbol 2
 // ...
-// and returns a ordered list of symbol 
+// and returns a ordered list of symbol
 func ReadHuffman(file string) (int, map[rune]int) {
 	f, err := os.Open(file)
 	if err != nil {
@@ -238,4 +239,34 @@ func ReadHuffman(file string) (int, map[rune]int) {
 		i++
 	}
 	return count, weights
+}
+
+//ReadCount reads a file and counts all characters
+func ReadCount(file string) (string, map[rune]int) {
+	f, err := os.Open(file)
+	if err != nil {
+		fmt.Println(err)
+		return "", nil
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	scan := bufio.NewScanner(f)
+	weights := make(map[rune]int)
+	var b bytes.Buffer
+	for scan.Scan() {
+		line := scan.Text()
+		b.WriteString(line)
+		for _, r := range line {
+			if _, ok := weights[r]; !ok {
+				weights[r] = 1
+			} else {
+				weights[r]++
+			}
+		}
+	}
+	return b.String(), weights
 }
