@@ -38,3 +38,16 @@ func TestHuffmanMaxLen(t *testing.T) {
 		t.Errorf("max - expected : %v, actual: %v", 9, max)
 	}
 }
+
+func TestHuffmanEncoder(t *testing.T) {
+	text := "aaaaaaaaaaaabbbbbccd"
+	e := ds.Encoder(text)
+	actual := e.Encode("abcd")
+	expected := []uint8{0, 1, 0, 1, 1, 0, 1, 1, 1}
+	for i, b := range expected {
+		if actual[i] != b {
+			t.Errorf("actual: %v, expected: %v", actual, expected)
+		}
+	}
+	e.Decode(expected)
+}

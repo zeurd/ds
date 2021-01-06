@@ -4,7 +4,8 @@ import "fmt"
 
 //HuffmanTree foo
 type HuffmanTree struct {
-	root *hnode
+	root    *hnode
+	encoder map[rune][]uint8
 }
 
 type huffman struct{}
@@ -28,11 +29,10 @@ func NewHuffmanTree(weights map[rune]int) *HuffmanTree {
 		b.Push(newSymbol(k, v, false))
 	}
 	h := huffman{}
-	return h.build(b)
+	t := h.build(b)
+	t.mapping()
+	return t
 }
-
-// Decode foo
-func(h *HuffmanTree) Decode() {}
 
 //Encoder foo
 func Encoder(s string) *HuffmanTree {
@@ -47,21 +47,44 @@ func Encoder(s string) *HuffmanTree {
 	return NewHuffmanTree(m)
 }
 
-// Encode foo
-func (*HuffmanTree) Encode(s string) {
-	for _, r := range s {
-		fmt.Println(r)
+//Decode foo
+func (h *HuffmanTree) Decode(bits []uint8) {
+	n := h.root
+	for _, bit := range bits {
+		n = h.next(n, bit)
+		if n.v != nil {
+			fmt.Println(n.v)
+			n = h.root
+		}
 	}
 }
 
+func (h *HuffmanTree) next(n *hnode, b uint8) *hnode {
+	if b == 0 {
+		return n.z
+	}
+	return n.o
+}
 
-func (*HuffmanTree) bits() {}
+// Encode foo
+func (h *HuffmanTree) Encode(s string) []uint8 {
+	encoded := make([]uint8, 0)
+	for _, r := range s {
+		encoded = append(encoded, h.encoder[r]...)
+	}
+	return encoded
+}
+
+// map returns a map of characters and their binary code
+func (h *HuffmanTree) mapping() {
+	s := make(map[rune][]uint8)
+	h.inOrder(h.root, []uint8{}, s)
+	h.encoder = s
+}
 
 // Map returns a map of characters and their binary code
 func (h *HuffmanTree) Map() map[rune][]uint8 {
-	s := make(map[rune][]uint8)
-	h.inOrder(h.root, []uint8{}, s)
-	return s
+	return h.encoder
 }
 
 func (h *HuffmanTree) String() string {
@@ -114,7 +137,7 @@ func (h *huffman) tree(b BinarySearchTree) *HuffmanTree {
 	} else {
 		hroot = newHnode(s)
 	}
-	return &HuffmanTree{hroot}
+	return &HuffmanTree{root: hroot}
 }
 
 func (h *huffman) greedy(b BinarySearchTree) {
