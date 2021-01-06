@@ -1,14 +1,14 @@
 package ds_test
 
 import (
+	"fmt"
 	"testing"
+
 	"github.com/zeurd/ds"
 )
 
 func TestNewHuffman(t *testing.T) {
-	count, weights := ds.ReadHuffman("testdata/huffman_10_40_9_4")
+	weights := map[interface{}]int{"a": 60, "b": 25, "c": 10, "d": 5}
 	h := ds.NewHuffmanTree(weights)
-	if h != count {
-		t.Errorf("expected count: %d, actual: %d", count, h)
-	}
+	fmt.Println(h)
 }
