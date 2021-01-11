@@ -114,3 +114,11 @@ func TestGraphClustering(t *testing.T) {
 	}
 
 }
+
+func TestAllPairs(t *testing.T) {
+	g, _, _, _ := ds.ReadVE("testdata/gbellman_-41", false)
+	a := g.AllPairsSP()
+	if a != -41 {
+		t.Errorf("wrong shortest path found by All pairs")
+	}
+}

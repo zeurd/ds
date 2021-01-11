@@ -16,6 +16,8 @@ type Graph interface {
 	MST() (Graph, int)
 	Clusters(k int) int
 	ClustersDist(d int) int
+	//BFSP(s,m,n int) ([]map[int]int, int)
+	AllPairsSP() interface{}
 }
 
 // NewGraph returns a default graph: directed and with int vertices

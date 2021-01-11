@@ -1,5 +1,9 @@
 package ds
 
+const (
+	inf = 1<<32 - 1
+)
+
 // graph representation as map[int][int]int, for map[from]map[to]weight
 type graph map[int]map[int]int
 
@@ -263,4 +267,123 @@ func (g graph) ClustersDist(d int) int {
 		clusters.Union(edge.From(), edge.To())
 	}
 	return clusters.Count()
+}
+
+func (g graph) BFSP(s, m, n int) (map[int]map[int]int, int) {
+	A := make(map[int]map[int]int, n+1)
+	//ini
+	A[s] = map[int]int{}
+	A[0][s] = 0
+	for nonS := range g {
+		if nonS == s {
+			continue
+		}
+		A[0][nonS] = 10_000_000
+	}
+	for i := 1; i <= n-1; i++ {
+		A[i] = make(map[int]int) //this could be space optimized
+		stable := true
+		var vv int
+		for v := range g {
+			vv = v
+			A[i][v] = g.minBF(A, i, v)
+			if A[i][v] != A[i-1][v] {
+				stable = false
+			}
+		}
+		if stable {
+			return A, A[i][vv]
+		}
+	}
+	return A, -1
+}
+
+func (g graph) minBF(A map[int]map[int]int, i, v int) int {
+	case1 := A[i-1][v]
+	case2 := 10_000_000
+	for w, Cwv := range A[i-1] {
+		c := A[i-1][w] + Cwv
+		if c < case2 {
+			case2 = c
+		}
+	}
+	if case1 < case2 {
+		return case1
+	}
+	return case2
+}
+
+func (g graph) AllPairsSP() interface{} {
+	V := g.vertices()
+	A := make(threeD)
+	// base cases (k = 0)
+	A[0] = make(twoD)
+	for _, v := range V {
+		A[0][v] = make(map[int]int)
+		for _, w := range V {
+			if v == w {
+				A[0][v][w] = 0
+			} else {
+				// if (v, w) is an edge
+				if c, ok := g[v][w]; ok {
+					A[0][v][w] = c
+				} else {
+					A[0][v][w] = inf
+				}
+			}
+		}
+	}
+	//main
+	for i, k := range V {
+		A[k] = make(twoD)
+		for _, v := range V {
+			A[k][v] = make(map[int]int)
+			for _, w := range V {
+				var kmin1 int
+				if i == 0 {
+					kmin1 = 0
+				} else {
+					kmin1 = V[i-1]
+				}
+				case1 := A[kmin1][v][w]
+				case2 := A[kmin1][v][k] + A[kmin1][k][w]
+				if case1 < case2 {
+					A[k][v][w] = case1
+				} else {
+					A[k][v][w] = case2
+				}
+			}
+		}
+	}
+	// check ofr neg cycle
+	for n, v := range V {
+		if A[n][v][v] < 0 {
+			panic("negative cycle")
+		}
+	}
+	// check for min
+	min := inf
+	for _, k := range V {
+		for _, v := range V {
+			for _, w := range V {
+				if A[k][v][w] < min {
+					min = A[k][v][w]
+				}
+			}
+		}
+	}
+	return min
+}
+
+type threeD map[int]map[int]map[int]int
+type twoD map[int]map[int]int
+
+func (g graph) vertices() []int {
+	V := make([]int, len(g))
+	i := 0
+	for v := range g {
+		V[i] = v
+		i++
+	}
+	return V
 }
